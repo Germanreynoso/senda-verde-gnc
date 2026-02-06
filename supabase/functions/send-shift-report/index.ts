@@ -11,8 +11,12 @@ serve(async (req) => {
     const { shift, totals, recipient } = await req.json()
 
     const formatDate = (dateStr: string) => {
-      const [y, m, d] = dateStr.split('-')
-      return `${d}/${m}/${y}`
+      if (!dateStr) return '';
+      const cleanDate = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+      const parts = cleanDate.split('-');
+      if (parts.length !== 3) return dateStr;
+      const [y, m, d] = parts;
+      return `${d}/${m}/${y}`;
     }
 
     const res = await fetch('https://api.resend.com/emails', {
