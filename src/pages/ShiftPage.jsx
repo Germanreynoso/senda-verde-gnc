@@ -4,6 +4,7 @@ import SurtidorCard from '../components/shift/SurtidorCard'
 import { Printer, Download, Plus, Trash2, X } from 'lucide-react'
 import { generateShiftExcel } from '../utils/excel'
 import { formatDate } from '../utils/format'
+import { supabase } from '../lib/supabase'
 
 export default function ShiftPage() {
   const { data, currentUser, addShift, decreaseProductStock, updateShift } = useData()
@@ -129,6 +130,22 @@ export default function ShiftPage() {
       fechaCierre: new Date().toISOString()
     }
     await updateShift(updatedShift)
+
+    // Enviar reporte por mail
+    try {
+      await supabase.functions.invoke('send-shift-report', {
+        body: {
+          shift: updatedShift,
+          totals: totals,
+          recipient: 'chombyferrari37.37.37@gmail.com'
+        }
+      });
+      alert('Reporte enviado con éxito al correo chombyferrari37.37.37@gmail.com');
+    } catch (error) {
+      console.error('Error enviando mail:', error)
+      alert('El turno se cerró pero hubo un error enviando el mail.');
+    }
+
     generateShiftExcel(updatedShift, data.pricePerCubicMeter)
     setActiveShift(null)
     setHasPrinted(false)
