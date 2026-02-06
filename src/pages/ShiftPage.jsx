@@ -21,18 +21,21 @@ export default function ShiftPage() {
 
   const [productSaleForm, setProductSaleForm] = useState({ productId: '', cantidad: '' })
 
-  const handleOpenShift = () => {
+  const handleOpenShift = async () => {
     if (activeShift) return alert('Ya hay un turno abierto')
-    const newShift = {
-      id: Date.now(),
+    const newShiftData = {
       ...shiftForm,
       encargado: `${currentUser.nombre} ${currentUser.apellido}`,
       estado: 'abierto',
       fechaApertura: new Date().toISOString()
     }
-    addShift(newShift)
-    setActiveShift(newShift)
-    alert('Turno abierto exitosamente')
+    const savedShift = await addShift(newShiftData)
+    if (savedShift) {
+      setActiveShift(savedShift)
+      alert('Turno abierto exitosamente')
+    } else {
+      alert('Error al abrir el turno')
+    }
   }
 
   const handleUpdateSurtidor = (index, field, value) => {
@@ -73,7 +76,7 @@ export default function ShiftPage() {
     return { surtidores: totalSurtidores, productos: totalProductos, total: totalSurtidores + totalProductos }
   }
 
-  const handleCloseShift = () => {
+  const handleCloseShift = async () => {
     if (!confirm('¿Está seguro de cerrar el turno?')) return
     const updatedShift = {
       ...activeShift,
@@ -82,7 +85,7 @@ export default function ShiftPage() {
       estado: 'cerrado',
       fechaCierre: new Date().toISOString()
     }
-    updateShift(updatedShift)
+    await updateShift(updatedShift)
     generateShiftTxt(updatedShift, data.pricePerCubicMeter)
     setActiveShift(null)
     setShiftForm({
