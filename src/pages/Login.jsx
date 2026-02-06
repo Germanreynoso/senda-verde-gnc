@@ -6,9 +6,9 @@ export default function Login() {
   const { login } = useData()
   const [form, setForm] = useState({ nombre: '', password: '' })
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    const user = login(form.nombre, form.password)
+    const user = await login(form.nombre, form.password)
     if (!user) return alert('Credenciales incorrectas')
   }
 
