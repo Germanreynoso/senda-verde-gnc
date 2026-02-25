@@ -7,9 +7,9 @@ export default function Dashboard() {
   const { data } = useData()
 
   const stats = [
-    { label: 'Total Usuarios', value: data.users.length, color: 'blue' },
-    { label: 'Total Productos', value: data.products.length, color: 'emerald' },
-    { label: 'Turnos Registrados', value: data.shifts.length, color: 'violet' },
+    { label: 'Total Usuarios', value: (data.users || []).length, color: 'blue' },
+    { label: 'Total Productos', value: (data.products || []).length, color: 'emerald' },
+    { label: 'Turnos Registrados', value: (data.shifts || []).length, color: 'violet' },
   ]
 
   const container = {

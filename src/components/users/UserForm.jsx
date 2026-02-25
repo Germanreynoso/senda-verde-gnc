@@ -59,6 +59,7 @@ export default function UserForm({ onSave, editingUser, clearEditing }) {
             <option value="administrador">Administrador</option>
           </select>
           <button
+            type="button"
             onClick={handleSave}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95"
           >

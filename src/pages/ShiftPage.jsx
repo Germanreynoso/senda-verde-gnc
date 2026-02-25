@@ -5,6 +5,7 @@ import { Printer, Download, Plus, Trash2, X } from 'lucide-react'
 import { generateShiftExcel } from '../utils/excel'
 import { formatDate } from '../utils/format'
 import { supabase } from '../lib/supabase'
+import { toast } from 'sonner'
 
 export default function ShiftPage() {
   const { data, currentUser, addShift, decreaseProductStock, updateShift } = useData()
@@ -29,25 +30,32 @@ export default function ShiftPage() {
 
   const [isSaving, setIsSaving] = useState(false)
 
-  // Sincronizar con el turno abierto si existe en la base de datos (SOLO AL CARGAR O CAMBIAR DE TURNO)
+  // Sincronizar con el turno abierto si existe en la base de datos
   useEffect(() => {
+    if (!data.shifts || data.shifts.length === 0) return
+
     const openShift = data.shifts.find(s => s.estado === 'abierto')
-    if (openShift && (!activeShift || activeShift.id !== openShift.id)) {
-      setActiveShift(openShift)
-      setShiftForm({
-        tipo: openShift.tipo,
-        fecha: openShift.fecha,
-        surtidores: openShift.surtidores || [
-          { id: 1, lecturaInicial: '', lecturaFinal: '' },
-          { id: 2, lecturaInicial: '', lecturaFinal: '' },
-          { id: 3, lecturaInicial: '', lecturaFinal: '' },
-          { id: 4, lecturaInicial: '', lecturaFinal: '' }
-        ],
-        ventas: openShift.ventas || [],
-        depositos: openShift.depositos || []
-      })
-    } else if (!openShift) {
-      setActiveShift(null)
+
+    if (openShift) {
+      // Solo actualizamos si no hay turno activo o si cambió el ID
+      if (!activeShift || activeShift.id !== openShift.id) {
+        setActiveShift(openShift)
+        setShiftForm({
+          tipo: openShift.tipo,
+          fecha: openShift.fecha,
+          surtidores: openShift.surtidores || [
+            { id: 1, lecturaInicial: '', lecturaFinal: '' },
+            { id: 2, lecturaInicial: '', lecturaFinal: '' },
+            { id: 3, lecturaInicial: '', lecturaFinal: '' },
+            { id: 4, lecturaInicial: '', lecturaFinal: '' }
+          ],
+          ventas: openShift.ventas || [],
+          depositos: openShift.depositos || []
+        })
+      }
+    } else {
+      // Solo si estamos seguros de que no hay turnos abiertos
+      if (activeShift) setActiveShift(null)
     }
   }, [data.shifts, activeShift])
 
@@ -96,27 +104,51 @@ export default function ShiftPage() {
     setShiftForm({ ...shiftForm, surtidores: newS })
   }
 
-  const handleAddProductSale = () => {
-    if (!productSaleForm.productId || !productSaleForm.cantidad)
-      return
+  const handleAddProductSale = async () => {
+    try {
+      if (!productSaleForm.productId || !productSaleForm.cantidad)
+        return
 
-    const product = data.products.find(p => p.id === parseInt(productSaleForm.productId))
-    const cantidad = parseInt(productSaleForm.cantidad)
-    if (cantidad > product.stock) return
+      const product = data.products.find(p => p.id === parseInt(productSaleForm.productId))
+      if (!product) return
 
-    const venta = {
-      id: Date.now(),
-      productId: product.id,
-      nombre: product.nombre,
-      precio: product.precio,
-      cantidad,
-      total: product.precio * cantidad
+      const cantidad = parseInt(productSaleForm.cantidad)
+      if (isNaN(cantidad) || cantidad <= 0 || cantidad > product.stock) {
+        toast.error(cantidad > product.stock ? 'Stock insuficiente' : 'Cantidad inválida')
+        return
+      }
+
+      const venta = {
+        id: Date.now(),
+        productId: product.id,
+        nombre: product.nombre,
+        precio: product.precio,
+        cantidad,
+        total: product.precio * cantidad
+      }
+
+      const updatedVentas = [...shiftForm.ventas, venta]
+      setShiftForm(prev => ({ ...prev, ventas: updatedVentas }))
+
+      // Disminuir stock en DB
+      await decreaseProductStock(product.id, cantidad)
+
+      // Auto-guardar el turno con la nueva venta
+      if (activeShift) {
+        await updateShift({
+          ...activeShift,
+          surtidores: shiftForm.surtidores,
+          ventas: updatedVentas,
+          depositos: shiftForm.depositos
+        })
+      }
+
+      setProductSaleForm({ productId: '', cantidad: '' })
+      setProductSearch('')
+    } catch (error) {
+      console.error('Error en handleAddProductSale:', error)
+      toast.error('Error al procesar la venta')
     }
-
-    setShiftForm(prev => ({ ...prev, ventas: [...prev.ventas, venta] }))
-    decreaseProductStock(product.id, cantidad)
-    setProductSaleForm({ productId: '', cantidad: '' })
-    setProductSearch('')
   }
 
   const handleAddDeposit = () => {
@@ -243,6 +275,7 @@ export default function ShiftPage() {
               />
             </div>
             <button
+              type="button"
               onClick={handleOpenShift}
               className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 font-semibold no-print"
             >
@@ -264,11 +297,12 @@ export default function ShiftPage() {
               </div>
               <div className="flex flex-col md:flex-row items-center gap-3 no-print">
                 <button
+                  type="button"
                   onClick={handleSaveProgress}
                   disabled={isSaving}
                   className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-bold transition-all ${isSaving
-                      ? 'bg-gray-100 text-gray-400'
-                      : 'bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm'
+                    ? 'bg-gray-100 text-gray-400'
+                    : 'bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm'
                     }`}
                 >
                   <Plus className={`w-4 h-4 ${isSaving ? 'animate-spin' : ''}`} />
@@ -346,6 +380,7 @@ export default function ShiftPage() {
                   className="px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none w-full text-gray-800 dark:text-white transition-all"
                 />
                 <button
+                  type="button"
                   onClick={handleAddProductSale}
                   className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center space-x-2"
                 >
@@ -418,6 +453,7 @@ export default function ShiftPage() {
                 className="px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none w-full text-gray-800 dark:text-white transition-all"
               />
               <button
+                type="button"
                 onClick={handleAddDeposit}
                 className="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 font-semibold transition flex items-center justify-center"
               >
@@ -436,6 +472,7 @@ export default function ShiftPage() {
 
                     {/* Botón de eliminar sobre - Solo visible al pasar el mouse (hover) o en táctil */}
                     <button
+                      type="button"
                       onClick={() => handleDeleteDeposit(d.id)}
                       className="absolute top-1 left-1 p-1 bg-red-100 text-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-200 no-print"
                       title="Eliminar sobre"
@@ -478,6 +515,7 @@ export default function ShiftPage() {
             </div>
             <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 no-print">
               <button
+                type="button"
                 onClick={handleCloseShift}
                 disabled={!totals.estaCuadrado || !hasPrinted}
                 className={`w-full py-3 rounded-lg font-semibold flex items-center justify-center space-x-2 transition ${totals.estaCuadrado && hasPrinted
@@ -495,6 +533,7 @@ export default function ShiftPage() {
                 </span>
               </button>
               <button
+                type="button"
                 onClick={handlePrint}
                 className="w-full bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700 font-semibold flex items-center justify-center space-x-2"
               >

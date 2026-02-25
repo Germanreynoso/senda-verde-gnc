@@ -59,6 +59,7 @@ export default function ProductForm({ onSave, editingProduct, clearEditing }) {
             className="flex-1 px-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-800 dark:text-white"
           />
           <button
+            type="button"
             onClick={handleSave}
             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 transition-all active:scale-95 whitespace-nowrap"
           >

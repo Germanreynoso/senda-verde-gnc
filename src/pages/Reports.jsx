@@ -9,6 +9,11 @@ export default function Reports() {
   const [searchTerm, setSearchTerm] = useState('')
   const [dateFilter, setDateFilter] = useState('')
 
+  const stats = [
+    { label: 'Total Usuarios', value: (data?.users || []).length, color: 'blue' },
+    { label: 'Total Productos', value: (data?.products || []).length, color: 'emerald' },
+    { label: 'Turnos Registrados', value: (data?.shifts || []).length, color: 'violet' },
+  ]
   const filteredShifts = data.shifts
     .filter(shift => {
       const matchSearch = shift.encargado.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -61,11 +66,11 @@ export default function Reports() {
       ) : (
         <div className="space-y-6">
           {filteredShifts.map(shift => {
-            const totalSurt = shift.surtidores.reduce((sum, s) => {
+            const totalSurt = (shift.surtidores || []).reduce((sum, s) => {
               const vendido = (parseFloat(s.lecturaFinal) || 0) - (parseFloat(s.lecturaInicial) || 0)
               return sum + (vendido * data.pricePerCubicMeter)
             }, 0)
-            const totalProd = shift.ventas.reduce((sum, v) => sum + v.total, 0)
+            const totalProd = (shift.ventas || []).reduce((sum, v) => sum + v.total, 0)
 
             return (
               <div key={shift.id} className="bg-white/40 dark:bg-slate-800/40 border border-gray-100 dark:border-slate-700/50 rounded-2xl p-6 hover:shadow-xl hover:bg-white/60 dark:hover:bg-slate-800/60 transition-all duration-300 transform hover:-translate-y-1">

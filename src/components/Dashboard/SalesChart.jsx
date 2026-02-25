@@ -10,13 +10,15 @@ import {
 } from 'recharts'
 import { formatDate } from '../../utils/format'
 
-export default function SalesChart({ shifts, pricePerCubicMeter }) {
-    const chartData = shifts.slice(-7).map((shift) => {
-        const totalSurt = shift.surtidores.reduce((sum, s) => {
+export default function SalesChart({ shifts = [], pricePerCubicMeter }) {
+    if (!shifts || shifts.length === 0) return null;
+
+    const chartData = [...shifts].reverse().slice(-7).map((shift) => {
+        const totalSurt = (shift.surtidores || []).reduce((sum, s) => {
             const vendido = (parseFloat(s.lecturaFinal) || 0) - (parseFloat(s.lecturaInicial) || 0)
             return sum + vendido * pricePerCubicMeter
         }, 0)
-        const totalProd = shift.ventas.reduce((sum, v) => sum + v.total, 0)
+        const totalProd = (shift.ventas || []).reduce((sum, v) => sum + v.total, 0)
 
         return {
             name: formatDate(shift.fecha).split(',')[0],
@@ -25,7 +27,7 @@ export default function SalesChart({ shifts, pricePerCubicMeter }) {
     })
 
     return (
-        <div className="h-[300px] w-full mt-8">
+        <div style={{ width: '100%', height: 300, minHeight: 300 }} className="mt-8">
             <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Ventas de los Últimos Turnos</h3>
             <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData}>

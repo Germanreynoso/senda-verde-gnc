@@ -33,7 +33,9 @@ function InnerApp() {
     setTheme(prev => prev === 'light' ? 'dark' : 'light')
   }
 
-  if (loading) return (
+  const hasUser = currentUser || !!localStorage.getItem('estacion-currentUser')
+
+  if (loading && !hasUser) return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950">
       <div className="relative">
         <div className="w-16 h-16 border-4 border-blue-600/20 border-t-blue-600 rounded-full animate-spin"></div>
@@ -43,7 +45,7 @@ function InnerApp() {
     </div>
   )
 
-  if (!currentUser) return <Login />
+  if (!currentUser && !loading) return <Login />
 
   return (
     <div className="min-h-screen bg-transparent dark:bg-transparent">

@@ -24,8 +24,9 @@ export const DataProvider = ({ children }) => {
   const [loading, setLoading] = useState(true)
 
   // Fetch initial data from Supabase
-  const fetchData = async () => {
-    setLoading(true)
+  const fetchData = async (silent = false) => {
+    // Solo mostrar cargando si es la primera vez (no hay datos) y no es silent
+    if (!silent && data.users.length === 0) setLoading(true)
     try {
       const { data: users } = await supabase.from('users').select('*')
       const { data: products } = await supabase.from('products').select('*')
@@ -89,13 +90,13 @@ export const DataProvider = ({ children }) => {
     if (user.id) {
       const { error } = await supabase.from('users').update(user).eq('id', user.id)
       if (!error) {
-        fetchData()
+        fetchData(true)
         toast.success('Usuario actualizado correctamente')
       } else toast.error('Error al actualizar usuario')
     } else {
       const { error } = await supabase.from('users').insert([user])
       if (!error) {
-        fetchData()
+        fetchData(true)
         toast.success('Usuario creado correctamente')
       } else toast.error('Error al crear usuario')
     }
@@ -104,7 +105,7 @@ export const DataProvider = ({ children }) => {
   const deleteUser = async (id) => {
     const { error } = await supabase.from('users').delete().eq('id', id)
     if (!error) {
-      fetchData()
+      fetchData(true)
       toast.success('Usuario eliminado')
       if (currentUser?.id === id) setCurrentUser(null)
     } else toast.error('Error al eliminar usuario')
@@ -121,13 +122,13 @@ export const DataProvider = ({ children }) => {
     if (product.id) {
       const { error } = await supabase.from('products').update(safeProduct).eq('id', product.id)
       if (!error) {
-        fetchData()
+        fetchData(true)
         toast.success('Producto actualizado')
       } else toast.error('Error al actualizar producto')
     } else {
       const { error } = await supabase.from('products').insert([safeProduct])
       if (!error) {
-        fetchData()
+        fetchData(true)
         toast.success('Producto creado')
       } else toast.error('Error al crear producto')
     }
@@ -136,7 +137,7 @@ export const DataProvider = ({ children }) => {
   const deleteProduct = async (id) => {
     const { error } = await supabase.from('products').delete().eq('id', id)
     if (!error) {
-      fetchData()
+      fetchData(true)
       toast.success('Producto eliminado')
     } else toast.error('Error al eliminar producto')
   }
@@ -146,7 +147,7 @@ export const DataProvider = ({ children }) => {
     if (product) {
       const newStock = product.stock - cantidad
       const { error } = await supabase.from('products').update({ stock: newStock }).eq('id', productId)
-      if (!error) fetchData()
+      if (!error) fetchData(true)
     }
   }
 
@@ -164,7 +165,7 @@ export const DataProvider = ({ children }) => {
     }
     const { data: newShift, error } = await supabase.from('shifts').insert([dbShift]).select().single()
     if (!error) {
-      fetchData()
+      fetchData(true)
       toast.success('Turno abierto con éxito')
       return newShift
     }
@@ -174,16 +175,24 @@ export const DataProvider = ({ children }) => {
   const updateShift = async (shift) => {
     const dbShift = {
       estado: shift.estado,
-      fecha_cierre: shift.fechaCierre,
       surtidores: shift.surtidores,
       ventas: shift.ventas,
       depositos: shift.depositos
     }
+
+    // Solo incluir fecha_cierre si existe
+    if (shift.fechaCierre) {
+      dbShift.fecha_cierre = shift.fechaCierre
+    }
+
     const { error } = await supabase.from('shifts').update(dbShift).eq('id', shift.id)
     if (!error) {
-      fetchData()
+      fetchData(true)
       if (dbShift.estado === 'cerrado') toast.success('Turno cerrado correctamente')
-    } else toast.error('Error al actualizar turno')
+    } else {
+      console.error('Error updating shift:', error)
+      toast.error('Error al actualizar turno')
+    }
   }
 
   return (
