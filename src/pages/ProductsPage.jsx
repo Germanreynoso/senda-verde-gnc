@@ -8,9 +8,9 @@ export default function ProductsPage() {
   const [editingProduct, setEditingProduct] = useState(null)
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Gestión de Productos</h2>
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+    <div className="glass rounded-2xl shadow-xl p-8 transition-all duration-300">
+      <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-8 tracking-tight">Gestión de Productos</h2>
+      <div className="mb-8 p-6 bg-blue-500/5 dark:bg-white/5 rounded-2xl border border-blue-200/20 dark:border-white/10">
         <ProductForm
           onSave={saveProduct}
           editingProduct={editingProduct}

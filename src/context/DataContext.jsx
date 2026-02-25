@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { toast } from 'sonner'
 
 const DataContext = createContext()
 
@@ -72,20 +73,31 @@ export const DataProvider = ({ children }) => {
 
     if (users) {
       setCurrentUser(users)
+      toast.success(`Bienvenido, ${users.nombre}`)
       return users
     }
+    toast.error('Credenciales incorrectas')
     return null
   }
 
-  const logout = () => setCurrentUser(null)
+  const logout = () => {
+    setCurrentUser(null)
+    toast.info('Sesión cerrada')
+  }
 
   const saveUser = async (user) => {
     if (user.id) {
       const { error } = await supabase.from('users').update(user).eq('id', user.id)
-      if (!error) fetchData()
+      if (!error) {
+        fetchData()
+        toast.success('Usuario actualizado correctamente')
+      } else toast.error('Error al actualizar usuario')
     } else {
       const { error } = await supabase.from('users').insert([user])
-      if (!error) fetchData()
+      if (!error) {
+        fetchData()
+        toast.success('Usuario creado correctamente')
+      } else toast.error('Error al crear usuario')
     }
   }
 
@@ -93,8 +105,9 @@ export const DataProvider = ({ children }) => {
     const { error } = await supabase.from('users').delete().eq('id', id)
     if (!error) {
       fetchData()
+      toast.success('Usuario eliminado')
       if (currentUser?.id === id) setCurrentUser(null)
-    }
+    } else toast.error('Error al eliminar usuario')
   }
 
   const saveProduct = async (product) => {
@@ -107,16 +120,25 @@ export const DataProvider = ({ children }) => {
 
     if (product.id) {
       const { error } = await supabase.from('products').update(safeProduct).eq('id', product.id)
-      if (!error) fetchData()
+      if (!error) {
+        fetchData()
+        toast.success('Producto actualizado')
+      } else toast.error('Error al actualizar producto')
     } else {
       const { error } = await supabase.from('products').insert([safeProduct])
-      if (!error) fetchData()
+      if (!error) {
+        fetchData()
+        toast.success('Producto creado')
+      } else toast.error('Error al crear producto')
     }
   }
 
   const deleteProduct = async (id) => {
     const { error } = await supabase.from('products').delete().eq('id', id)
-    if (!error) fetchData()
+    if (!error) {
+      fetchData()
+      toast.success('Producto eliminado')
+    } else toast.error('Error al eliminar producto')
   }
 
   const decreaseProductStock = async (productId, cantidad) => {
@@ -137,13 +159,16 @@ export const DataProvider = ({ children }) => {
       estado: shift.estado,
       fecha_apertura: shift.fechaApertura,
       surtidores: shift.surtidores,
-      ventas: shift.ventas
+      ventas: shift.ventas,
+      depositos: shift.depositos
     }
     const { data: newShift, error } = await supabase.from('shifts').insert([dbShift]).select().single()
     if (!error) {
       fetchData()
+      toast.success('Turno abierto con éxito')
       return newShift
     }
+    toast.error('Error al abrir turno')
   }
 
   const updateShift = async (shift) => {
@@ -151,10 +176,14 @@ export const DataProvider = ({ children }) => {
       estado: shift.estado,
       fecha_cierre: shift.fechaCierre,
       surtidores: shift.surtidores,
-      ventas: shift.ventas
+      ventas: shift.ventas,
+      depositos: shift.depositos
     }
     const { error } = await supabase.from('shifts').update(dbShift).eq('id', shift.id)
-    if (!error) fetchData()
+    if (!error) {
+      fetchData()
+      if (dbShift.estado === 'cerrado') toast.success('Turno cerrado correctamente')
+    } else toast.error('Error al actualizar turno')
   }
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useData } from '../context/DataContext'
 import SurtidorCard from '../components/shift/SurtidorCard'
 import { Printer, Download, Plus, Trash2, X } from 'lucide-react'
@@ -27,21 +27,67 @@ export default function ShiftPage() {
   const [depositForm, setDepositForm] = useState({ monto: '', nota: '', numeroSobre: '' })
   const [hasPrinted, setHasPrinted] = useState(false)
 
+  const [isSaving, setIsSaving] = useState(false)
+
+  // Sincronizar con el turno abierto si existe en la base de datos (SOLO AL CARGAR O CAMBIAR DE TURNO)
+  useEffect(() => {
+    const openShift = data.shifts.find(s => s.estado === 'abierto')
+    if (openShift && (!activeShift || activeShift.id !== openShift.id)) {
+      setActiveShift(openShift)
+      setShiftForm({
+        tipo: openShift.tipo,
+        fecha: openShift.fecha,
+        surtidores: openShift.surtidores || [
+          { id: 1, lecturaInicial: '', lecturaFinal: '' },
+          { id: 2, lecturaInicial: '', lecturaFinal: '' },
+          { id: 3, lecturaInicial: '', lecturaFinal: '' },
+          { id: 4, lecturaInicial: '', lecturaFinal: '' }
+        ],
+        ventas: openShift.ventas || [],
+        depositos: openShift.depositos || []
+      })
+    } else if (!openShift) {
+      setActiveShift(null)
+    }
+  }, [data.shifts, activeShift])
+
   const handleOpenShift = async () => {
     if (activeShift) return
     setHasPrinted(false)
+
+    // Asegurarse de que los surtidores tengan la estructura base si están vacíos
+    const initialSurtidores = shiftForm.surtidores.length > 0 ? shiftForm.surtidores : [
+      { id: 1, lecturaInicial: '', lecturaFinal: '' },
+      { id: 2, lecturaInicial: '', lecturaFinal: '' },
+      { id: 3, lecturaInicial: '', lecturaFinal: '' },
+      { id: 4, lecturaInicial: '', lecturaFinal: '' }
+    ]
+
     const newShiftData = {
       ...shiftForm,
+      surtidores: initialSurtidores,
       encargado: `${currentUser.nombre} ${currentUser.apellido}`,
       estado: 'abierto',
       fechaApertura: new Date().toISOString()
     }
+
     const savedShift = await addShift(newShiftData)
     if (savedShift) {
       setActiveShift(savedShift)
-    } else {
-      console.error('Error al abrir el turno')
     }
+  }
+
+  const handleSaveProgress = async () => {
+    if (!activeShift) return
+    setIsSaving(true)
+    const updatedShift = {
+      ...activeShift,
+      surtidores: shiftForm.surtidores,
+      ventas: shiftForm.ventas,
+      depositos: shiftForm.depositos
+    }
+    await updateShift(updatedShift)
+    setIsSaving(false)
   }
 
   const handleUpdateSurtidor = (index, field, value) => {
@@ -173,27 +219,27 @@ export default function ShiftPage() {
   return (
     <div className="space-y-6">
       {!activeShift ? (
-        <div className="bg-white rounded-lg shadow-lg p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Abrir Turno</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Tipo de Turno</label>
+        <div className="glass rounded-2xl shadow-xl p-8 transition-all duration-300">
+          <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-8 tracking-tight">Abrir Turno</h2>
+          <div className="space-y-6">
+            <div className="bg-white/50 dark:bg-slate-800/50 p-6 rounded-2xl border border-gray-100 dark:border-slate-700/50">
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Tipo de Turno</label>
               <select
                 value={shiftForm.tipo}
                 onChange={e => setShiftForm({ ...shiftForm, tipo: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg"
+                className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-800 dark:text-white"
               >
                 <option value="mañana">Mañana</option>
                 <option value="tarde">Tarde</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">Fecha</label>
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Fecha</label>
               <input
                 type="date"
                 value={shiftForm.fecha}
                 onChange={e => setShiftForm({ ...shiftForm, fecha: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg"
+                className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-800 dark:text-white"
               />
             </div>
             <button
@@ -206,24 +252,38 @@ export default function ShiftPage() {
         </div>
       ) : (
         <>
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <div className="flex justify-between items-center mb-6 pb-4 border-b">
+          <div className="glass rounded-2xl shadow-xl p-8 transition-all duration-300">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-gray-100 dark:border-slate-700/50">
               <div>
-                <h2 className="text-2xl font-bold text-gray-800">
+                <h2 className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">
                   Turno {activeShift.tipo.toUpperCase()}
                 </h2>
                 <p className="text-gray-600">
                   {formatDate(activeShift.fecha)} | Operator: {activeShift.encargado}
                 </p>
               </div>
-              <div className="text-right no-print">
-                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-bold uppercase">
+              <div className="flex flex-col md:flex-row items-center gap-3 no-print">
+                <button
+                  onClick={handleSaveProgress}
+                  disabled={isSaving}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-bold transition-all ${isSaving
+                      ? 'bg-gray-100 text-gray-400'
+                      : 'bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm'
+                    }`}
+                >
+                  <Plus className={`w-4 h-4 ${isSaving ? 'animate-spin' : ''}`} />
+                  <span>{isSaving ? 'Guardando...' : 'Guardar Progreso'}</span>
+                </button>
+                <span className="bg-green-100 text-green-800 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">
                   {activeShift.estado}
                 </span>
               </div>
             </div>
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Gestión de Surtidores</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-6 flex items-center">
+              <span className="w-1.5 h-6 bg-blue-600 rounded-full mr-3"></span>
+              Gestión de Surtidores
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {shiftForm.surtidores.map((s, i) => (
                 <SurtidorCard
                   key={s.id}
@@ -236,10 +296,10 @@ export default function ShiftPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Ventas de Productos</h2>
+          <div className="glass rounded-2xl shadow-xl p-8 transition-all duration-300">
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 tracking-tight">Ventas de Productos</h2>
 
-            <div className="mb-4 p-4 bg-gray-50 rounded-lg no-print">
+            <div className="mb-6 p-6 bg-blue-500/5 dark:bg-white/5 rounded-2xl border border-blue-200/20 dark:border-white/10 no-print">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="relative flex flex-col">
                   <input
@@ -250,13 +310,13 @@ export default function ShiftPage() {
                       setProductSearch(e.target.value)
                       setProductSaleForm({ ...productSaleForm, productId: '' })
                     }}
-                    className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none w-full"
+                    className="px-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none w-full text-gray-800 dark:text-white transition-all"
                   />
 
                   {productSearch && (
-                    <div className="absolute z-10 w-full mt-11 bg-white border rounded-lg shadow-xl max-h-60 overflow-y-auto">
+                    <div className="absolute z-10 w-full mt-14 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto no-print backdrop-blur-xl">
                       {data.products
-                        .filter(p => p.nombre.toLowerCase().startsWith(productSearch.toLowerCase()))
+                        .filter(p => p.nombre.toLowerCase().includes(productSearch.toLowerCase()))
                         .map(p => (
                           <div
                             key={p.id}
@@ -264,17 +324,16 @@ export default function ShiftPage() {
                               setProductSaleForm({ ...productSaleForm, productId: p.id.toString() })
                               setProductSearch(p.nombre)
                             }}
-                            className={`px-4 py-3 cursor-pointer hover:bg-blue-50 border-b last:border-b-0 flex justify-between items-center ${productSaleForm.productId === p.id.toString() ? 'bg-blue-100' : ''
-                              }`}
+                            className={`px-4 py-3 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/30 border-b border-gray-100 dark:border-slate-700 last:border-b-0 flex justify-between items-center transition-colors ${productSaleForm.productId === p.id.toString() ? 'bg-blue-100 dark:bg-blue-900/50' : ''}`}
                           >
-                            <span className="font-medium text-gray-800">{p.nombre}</span>
-                            <span className="text-xs font-semibold px-2 py-1 bg-gray-100 rounded text-gray-600">
+                            <span className="font-medium text-gray-800 dark:text-white">{p.nombre}</span>
+                            <span className="text-[10px] font-bold px-2 py-1 bg-gray-100 dark:bg-slate-700 rounded text-gray-600 dark:text-gray-400 uppercase tracking-tighter">
                               Stock: {p.stock}
                             </span>
                           </div>
                         ))}
-                      {data.products.filter(p => p.nombre.toLowerCase().startsWith(productSearch.toLowerCase())).length === 0 && (
-                        <div className="px-4 py-3 text-gray-500 text-sm">No se encontraron productos</div>
+                      {data.products.filter(p => p.nombre.toLowerCase().includes(productSearch.toLowerCase())).length === 0 && (
+                        <div className="px-4 py-3 text-gray-500 dark:text-gray-400 text-sm">No se encontraron productos</div>
                       )}
                     </div>
                   )}
@@ -284,7 +343,7 @@ export default function ShiftPage() {
                   placeholder="Cantidad"
                   value={productSaleForm.cantidad}
                   onChange={e => setProductSaleForm({ ...productSaleForm, cantidad: e.target.value })}
-                  className="px-4 py-2 border rounded-lg"
+                  className="px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none w-full text-gray-800 dark:text-white transition-all"
                 />
                 <button
                   onClick={handleAddProductSale}
@@ -323,9 +382,9 @@ export default function ShiftPage() {
           </div>
 
           {/* Sección de Depósitos */}
-          <div className="bg-white rounded-lg shadow-lg p-6 border-l-4 border-yellow-500">
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-gray-800">Control de Depósitos (Sobres Numerados)</h2>
+          <div className="glass rounded-2xl shadow-xl p-8 border-l-4 border-yellow-500 transition-all duration-300">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Control de Depósitos</h2>
               <div className="flex space-x-2">
                 <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-bold">
                   Suma Sobres: ${totals.depositos.toFixed(2)}
@@ -342,21 +401,21 @@ export default function ShiftPage() {
                 placeholder="N° de Sobre"
                 value={depositForm.numeroSobre}
                 onChange={e => setDepositForm({ ...depositForm, numeroSobre: e.target.value })}
-                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none"
+                className="px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none w-full text-gray-800 dark:text-white transition-all"
               />
               <input
                 type="number"
                 placeholder="Monto ($)"
                 value={depositForm.monto}
                 onChange={e => setDepositForm({ ...depositForm, monto: e.target.value })}
-                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none"
+                className="px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none w-full text-gray-800 dark:text-white transition-all"
               />
               <input
                 type="text"
                 placeholder="Nota (opcional)"
                 value={depositForm.nota}
                 onChange={e => setDepositForm({ ...depositForm, nota: e.target.value })}
-                className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none border-dashed"
+                className="px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none w-full text-gray-800 dark:text-white transition-all"
               />
               <button
                 onClick={handleAddDeposit}
@@ -397,8 +456,8 @@ export default function ShiftPage() {
             )}
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Conciliación Final de Turno</h3>
+          <div className="glass bg-blue-500/5 dark:bg-white/5 border border-blue-200/50 dark:border-white/10 rounded-2xl p-8 transition-all duration-300">
+            <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 tracking-tight">Conciliación Final</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <div>
                 <p className="text-sm text-gray-600">Total Ventas (A)</p>

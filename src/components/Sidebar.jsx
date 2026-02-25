@@ -3,37 +3,40 @@ import { Users, Package, Fuel, ClipboardList, Eye, LogOut } from 'lucide-react'
 
 export default function Sidebar({ activeSection, setActiveSection, currentUser, onLogout, setMobileMenuOpen }) {
   return (
-    <div className="bg-white rounded-lg shadow-lg p-4">
-      <nav className="space-y-2">
+    <div className="glass rounded-2xl shadow-xl p-4 transition-all duration-300">
+      <nav className="space-y-1">
         <button
           onClick={() => { setActiveSection('dashboard'); setMobileMenuOpen(false) }}
-          className={`w-full text-left px-4 py-3 rounded flex items-center space-x-3 transition ${
-            activeSection === 'dashboard' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'
-          }`}
+          className={`w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 transition-all duration-300 ${activeSection === 'dashboard'
+              ? 'bg-blue-600 text-white shadow-md transform scale-[1.02]'
+              : 'text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5'
+            }`}
         >
           <ClipboardList className="w-5 h-5" />
-          <span>Dashboard</span>
+          <span className="font-medium">Dashboard</span>
         </button>
 
         {currentUser.rol === 'administrador' && (
           <>
             <button
               onClick={() => { setActiveSection('users'); setMobileMenuOpen(false) }}
-              className={`w-full text-left px-4 py-3 rounded flex items-center space-x-3 transition ${
-                activeSection === 'users' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'
-              }`}
+              className={`w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 transition-all duration-300 ${activeSection === 'users'
+                  ? 'bg-blue-600 text-white shadow-md transform scale-[1.02]'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5'
+                }`}
             >
               <Users className="w-5 h-5" />
-              <span>Usuarios</span>
+              <span className="font-medium">Usuarios</span>
             </button>
             <button
               onClick={() => { setActiveSection('products'); setMobileMenuOpen(false) }}
-              className={`w-full text-left px-4 py-3 rounded flex items-center space-x-3 transition ${
-                activeSection === 'products' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'
-              }`}
+              className={`w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 transition-all duration-300 ${activeSection === 'products'
+                  ? 'bg-blue-600 text-white shadow-md transform scale-[1.02]'
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5'
+                }`}
             >
               <Package className="w-5 h-5" />
-              <span>Productos</span>
+              <span className="font-medium">Productos</span>
             </button>
           </>
         )}
@@ -41,32 +44,36 @@ export default function Sidebar({ activeSection, setActiveSection, currentUser, 
         {currentUser.rol === 'vendedor' && (
           <button
             onClick={() => { setActiveSection('shift'); setMobileMenuOpen(false) }}
-            className={`w-full text-left px-4 py-3 rounded flex items-center space-x-3 transition ${
-              activeSection === 'shift' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'
-            }`}
+            className={`w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 transition-all duration-300 ${activeSection === 'shift'
+                ? 'bg-blue-600 text-white shadow-md transform scale-[1.02]'
+                : 'text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5'
+              }`}
           >
             <Fuel className="w-5 h-5" />
-            <span>Gestión de Turno</span>
+            <span className="font-medium">Gestión de Turno</span>
           </button>
         )}
 
         <button
           onClick={() => { setActiveSection('reports'); setMobileMenuOpen(false) }}
-          className={`w-full text-left px-4 py-3 rounded flex items-center space-x-3 transition ${
-            activeSection === 'reports' ? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'
-          }`}
+          className={`w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 transition-all duration-300 ${activeSection === 'reports'
+              ? 'bg-blue-600 text-white shadow-md transform scale-[1.02]'
+              : 'text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5'
+            }`}
         >
           <Eye className="w-5 h-5" />
-          <span>Historial</span>
+          <span className="font-medium">Historial</span>
         </button>
 
-        <button
-          onClick={onLogout}
-          className="w-full mt-4 flex items-center justify-center space-x-2 bg-red-600 text-white px-4 py-3 rounded hover:bg-red-700 transition"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Salir</span>
-        </button>
+        <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
+          <button
+            onClick={onLogout}
+            className="w-full flex items-center justify-center space-x-2 bg-red-500/10 dark:bg-red-500/20 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl hover:bg-red-600 hover:text-white transition-all duration-300"
+          >
+            <LogOut className="w-4 h-4" />
+            <span className="font-medium">Cerrar Sesión</span>
+          </button>
+        </div>
       </nav>
     </div>
   )
