@@ -69,7 +69,7 @@ export default function Login() {
                 <span className="text-xs opacity-75 italic">admin123</span>
               </div>
               <div className="text-gray-600 dark:text-gray-400">
-                <span className="block font-bold text-gray-900 dark:text-gray-200">Vendedor</span>
+                <span className="block font-bold text-gray-900 dark:text-gray-200">Juan</span>
                 <span className="text-xs opacity-75 italic">vendedor123</span>
               </div>
             </div>
