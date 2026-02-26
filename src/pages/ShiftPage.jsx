@@ -211,17 +211,25 @@ export default function ShiftPage() {
 
     // Enviar reporte por mail
     try {
-      await supabase.functions.invoke('send-shift-report', {
+      const { error: invokeError } = await supabase.functions.invoke('send-shift-report', {
         body: {
           shift: updatedShift,
           totals: totals,
           recipient: 'chombyferrari37.37.37@gmail.com'
         }
       });
-      alert('Reporte enviado con éxito al correo chombyferrari37.37.37@gmail.com');
+
+      if (invokeError) throw invokeError;
+
+      toast.success('¡Reporte Enviado!', {
+        description: 'El resumen del turno ha sido enviado con éxito a chombyferrari37.37.37@gmail.com',
+        duration: 5000,
+      });
     } catch (error) {
       console.error('Error enviando mail:', error)
-      alert('El turno se cerró pero hubo un error enviando el mail.');
+      toast.error('Error de Envío', {
+        description: 'El turno se cerró pero no se pudo enviar el email de reporte.',
+      });
     }
 
     generateShiftExcel(updatedShift, data.pricePerCubicMeter)
