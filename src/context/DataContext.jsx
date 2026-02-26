@@ -174,6 +174,9 @@ export const DataProvider = ({ children }) => {
 
   const updateShift = async (shift) => {
     const dbShift = {
+      tipo: shift.tipo,
+      fecha: shift.fecha,
+      encargado: shift.encargado,
       estado: shift.estado,
       surtidores: shift.surtidores,
       ventas: shift.ventas,
@@ -181,8 +184,8 @@ export const DataProvider = ({ children }) => {
     }
 
     // Solo incluir fecha_cierre si existe
-    if (shift.fechaCierre) {
-      dbShift.fecha_cierre = shift.fechaCierre
+    if (shift.fechaCierre || shift.fecha_cierre) {
+      dbShift.fecha_cierre = shift.fechaCierre || shift.fecha_cierre
     }
 
     const { error } = await supabase.from('shifts').update(dbShift).eq('id', shift.id)

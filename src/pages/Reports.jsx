@@ -1,13 +1,26 @@
 import React, { useState } from 'react'
 import { useData } from '../context/DataContext'
-import { Download, Search, Calendar, Filter } from 'lucide-react'
+import { Download, Search, Calendar, Filter, Edit2, Check, X } from 'lucide-react'
 import { generateShiftExcel } from '../utils/excel'
 import { formatDate } from '../utils/format'
 
 export default function Reports() {
-  const { data } = useData()
+  const { data, updateShift, currentUser } = useData()
   const [searchTerm, setSearchTerm] = useState('')
   const [dateFilter, setDateFilter] = useState('')
+  const [editingShiftId, setEditingShiftId] = useState(null)
+  const [editForm, setEditForm] = useState({ tipo: '', fecha: '' })
+
+  const handleStartEdit = (shift) => {
+    if (currentUser?.rol !== 'administrador') return
+    setEditingShiftId(shift.id)
+    setEditForm({ tipo: shift.tipo, fecha: shift.fecha })
+  }
+
+  const handleSaveEdit = async (shift) => {
+    await updateShift({ ...shift, ...editForm })
+    setEditingShiftId(null)
+  }
 
   const stats = [
     { label: 'Total Usuarios', value: (data?.users || []).length, color: 'blue' },
@@ -75,13 +88,61 @@ export default function Reports() {
             return (
               <div key={shift.id} className="bg-white/40 dark:bg-slate-800/40 border border-gray-100 dark:border-slate-700/50 rounded-2xl p-6 hover:shadow-xl hover:bg-white/60 dark:hover:bg-slate-800/60 transition-all duration-300 transform hover:-translate-y-1">
                 <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="font-bold text-xl text-gray-800 dark:text-gray-100 italic">
-                      Turno {shift.tipo.toUpperCase()}
-                    </h3>
-                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
-                      {formatDate(shift.fecha)} • {shift.encargado}
-                    </p>
+                  <div className="flex-1">
+                    {editingShiftId === shift.id ? (
+                      <div className="flex flex-col sm:flex-row gap-2 mb-2">
+                        <select
+                          value={editForm.tipo}
+                          onChange={e => setEditForm({ ...editForm, tipo: e.target.value })}
+                          className="px-3 py-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm font-bold"
+                        >
+                          <option value="mañana">MAÑANA</option>
+                          <option value="tarde">TARDE</option>
+                        </select>
+                        <input
+                          type="date"
+                          value={editForm.fecha}
+                          onChange={e => setEditForm({ ...editForm, fecha: e.target.value })}
+                          className="px-3 py-1 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm font-bold"
+                        />
+                        <div className="flex gap-1">
+                          <button
+                            onClick={() => handleSaveEdit(shift)}
+                            className="p-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                            title="Guardar"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => setEditingShiftId(null)}
+                            className="p-1.5 bg-gray-500 text-white rounded-lg hover:bg-gray-600"
+                            title="Cancelar"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center group/title">
+                        <div>
+                          <h3 className="font-bold text-xl text-gray-800 dark:text-gray-100 italic">
+                            Turno {shift.tipo.toUpperCase()}
+                          </h3>
+                          <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-1">
+                            {formatDate(shift.fecha)} • {shift.encargado}
+                          </p>
+                        </div>
+                        {currentUser?.rol === 'administrador' && (
+                          <button
+                            onClick={() => handleStartEdit(shift)}
+                            className="ml-3 p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-lg opacity-0 group-hover/title:opacity-100 transition-all no-print"
+                            title="Editar"
+                          >
+                            <Edit2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center space-x-3">
                     <span

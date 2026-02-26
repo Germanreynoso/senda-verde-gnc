@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useData } from '../context/DataContext'
 import SurtidorCard from '../components/shift/SurtidorCard'
-import { Printer, Download, Plus, Trash2, X } from 'lucide-react'
+import { Printer, Download, Plus, Trash2, X, Edit2, Check } from 'lucide-react'
 import { generateShiftExcel } from '../utils/excel'
-import { formatDate } from '../utils/format'
+import { formatDate, getTodayDate } from '../utils/format'
 import { supabase } from '../lib/supabase'
 import { toast } from 'sonner'
 
@@ -12,7 +12,7 @@ export default function ShiftPage() {
   const [activeShift, setActiveShift] = useState(null)
   const [shiftForm, setShiftForm] = useState({
     tipo: 'mañana',
-    fecha: new Date().toISOString().split('T')[0],
+    fecha: getTodayDate(),
     surtidores: [
       { id: 1, lecturaInicial: '', lecturaFinal: '' },
       { id: 2, lecturaInicial: '', lecturaFinal: '' },
@@ -29,6 +29,7 @@ export default function ShiftPage() {
   const [hasPrinted, setHasPrinted] = useState(false)
 
   const [isSaving, setIsSaving] = useState(false)
+  const [isEditingHeader, setIsEditingHeader] = useState(false)
 
   // Sincronizar con el turno abierto si existe en la base de datos
   useEffect(() => {
@@ -90,12 +91,15 @@ export default function ShiftPage() {
     setIsSaving(true)
     const updatedShift = {
       ...activeShift,
+      tipo: shiftForm.tipo,
+      fecha: shiftForm.fecha,
       surtidores: shiftForm.surtidores,
       ventas: shiftForm.ventas,
       depositos: shiftForm.depositos
     }
     await updateShift(updatedShift)
     setIsSaving(false)
+    setIsEditingHeader(false)
   }
 
   const handleUpdateSurtidor = (index, field, value) => {
@@ -237,7 +241,7 @@ export default function ShiftPage() {
     setHasPrinted(false)
     setShiftForm({
       tipo: 'mañana',
-      fecha: new Date().toISOString().split('T')[0],
+      fecha: getTodayDate(),
       surtidores: [
         { id: 1, lecturaInicial: '', lecturaFinal: '' },
         { id: 2, lecturaInicial: '', lecturaFinal: '' },
@@ -295,15 +299,68 @@ export default function ShiftPage() {
         <>
           <div className="glass rounded-2xl shadow-xl p-8 transition-all duration-300">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-gray-100 dark:border-slate-700/50">
-              <div>
-                <h2 className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight">
-                  Turno {activeShift.tipo.toUpperCase()}
-                </h2>
-                <p className="text-gray-600">
-                  {formatDate(activeShift.fecha)} | Operator: {activeShift.encargado}
-                </p>
+              <div className="w-full md:w-auto">
+                {isEditingHeader ? (
+                  <div className="space-y-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-200 dark:border-blue-800/50 mb-4 md:mb-0">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-blue-600 mb-1">Tipo de Turno</label>
+                        <select
+                          value={shiftForm.tipo}
+                          onChange={e => setShiftForm({ ...shiftForm, tipo: e.target.value })}
+                          className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-sm font-bold text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="mañana">MAÑANA</option>
+                          <option value="tarde">TARDE</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-blue-600 mb-1">Fecha</label>
+                        <input
+                          type="date"
+                          value={shiftForm.fecha}
+                          onChange={e => setShiftForm({ ...shiftForm, fecha: e.target.value })}
+                          className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-sm font-bold text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex justify-end space-x-2">
+                      <button
+                        onClick={() => setIsEditingHeader(false)}
+                        className="px-3 py-1.5 text-xs font-bold text-gray-500 hover:text-gray-700 uppercase"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        onClick={handleSaveProgress}
+                        className="px-4 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 flex items-center"
+                      >
+                        <Check className="w-3 h-3 mr-1" />
+                        Confirmar Cambio
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center group">
+                    <div>
+                      <h2 className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight flex items-center">
+                        Turno {activeShift.tipo.toUpperCase()}
+                      </h2>
+                      <p className="text-gray-600 flex items-center">
+                        {formatDate(activeShift.fecha)} | Operator: {activeShift.encargado}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setIsEditingHeader(true)}
+                      className="ml-4 p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-full opacity-0 group-hover:opacity-100 transition-all no-print"
+                      title="Editar Fecha o Turno"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
               </div>
-              <div className="flex flex-col md:flex-row items-center gap-3 no-print">
+              <div className="flex flex-col md:flex-row items-center gap-3 no-print mt-4 md:mt-0">
                 <button
                   type="button"
                   onClick={handleSaveProgress}
