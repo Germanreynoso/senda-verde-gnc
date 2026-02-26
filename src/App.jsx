@@ -16,7 +16,9 @@ import './index.css'
 
 function InnerApp() {
   const { currentUser, logout, loading } = useData()
-  const [activeSection, setActiveSection] = useState('dashboard')
+  const [activeSection, setActiveSection] = useState(
+    currentUser?.rol === 'administrador' ? 'dashboard' : 'shift'
+  )
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light')
 
@@ -73,11 +75,11 @@ function InnerApp() {
           <div className="lg:col-span-3">
             <AnimatePresence mode="wait">
               <PageTransition key={activeSection}>
-                {activeSection === 'dashboard' && <Dashboard />}
+                {activeSection === 'dashboard' && currentUser.rol === 'administrador' && <Dashboard />}
                 {activeSection === 'users' && currentUser.rol === 'administrador' && <UsersPage />}
                 {activeSection === 'products' && currentUser.rol === 'administrador' && <ProductsPage />}
                 {activeSection === 'shift' && currentUser.rol === 'vendedor' && <ShiftPage />}
-                {activeSection === 'reports' && <Reports />}
+                {activeSection === 'reports' && currentUser.rol === 'administrador' && <Reports />}
               </PageTransition>
             </AnimatePresence>
           </div>

@@ -5,16 +5,18 @@ export default function Sidebar({ activeSection, setActiveSection, currentUser, 
   return (
     <div className="glass rounded-2xl shadow-xl p-4 transition-all duration-300">
       <nav className="space-y-1">
-        <button
-          onClick={() => { setActiveSection('dashboard'); setMobileMenuOpen(false) }}
-          className={`w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 transition-all duration-300 ${activeSection === 'dashboard'
-            ? 'bg-blue-600 text-white shadow-md transform scale-[1.02]'
-            : 'text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5'
-            }`}
-        >
-          <ClipboardList className="w-5 h-5" />
-          <span className="font-medium">Dashboard</span>
-        </button>
+        {currentUser.rol === 'administrador' && (
+          <button
+            onClick={() => { setActiveSection('dashboard'); setMobileMenuOpen(false) }}
+            className={`w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 transition-all duration-300 ${activeSection === 'dashboard'
+              ? 'bg-blue-600 text-white shadow-md transform scale-[1.02]'
+              : 'text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5'
+              }`}
+          >
+            <ClipboardList className="w-5 h-5" />
+            <span className="font-medium">Dashboard</span>
+          </button>
+        )}
 
         {currentUser.rol === 'administrador' && (
           <>
@@ -54,16 +56,18 @@ export default function Sidebar({ activeSection, setActiveSection, currentUser, 
           </button>
         )}
 
-        <button
-          onClick={() => { setActiveSection('reports'); setMobileMenuOpen(false) }}
-          className={`w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 transition-all duration-300 ${activeSection === 'reports'
-            ? 'bg-blue-600 text-white shadow-md transform scale-[1.02]'
-            : 'text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5'
-            }`}
-        >
-          <Eye className="w-5 h-5" />
-          <span className="font-medium">Historial</span>
-        </button>
+        {currentUser.rol === 'administrador' && (
+          <button
+            onClick={() => { setActiveSection('reports'); setMobileMenuOpen(false) }}
+            className={`w-full text-left px-4 py-3 rounded-xl flex items-center space-x-3 transition-all duration-300 ${activeSection === 'reports'
+              ? 'bg-blue-600 text-white shadow-md transform scale-[1.02]'
+              : 'text-gray-600 dark:text-gray-300 hover:bg-white/50 dark:hover:bg-white/5'
+              }`}
+          >
+            <Eye className="w-5 h-5" />
+            <span className="font-medium">Historial</span>
+          </button>
+        )}
 
         <div className="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
           <button
