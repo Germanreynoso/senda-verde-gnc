@@ -1,12 +1,75 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useData } from '../context/DataContext'
 import SalesChart from '../components/Dashboard/SalesChart'
 import { motion } from 'framer-motion'
-import { Search, Fuel, Package, Landmark } from 'lucide-react'
+import { Search, Fuel, Package, Landmark, Edit3, Save, X as CloseIcon } from 'lucide-react'
 import { getTodayDate, formatDate } from '../utils/format'
 
+function PriceEditor({ currentPrice, onSave }) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [tempPrice, setTempPrice] = useState(currentPrice)
+
+  useEffect(() => {
+    setTempPrice(currentPrice)
+  }, [currentPrice])
+
+  const handleSave = () => {
+    onSave(tempPrice)
+    setIsEditing(false)
+  }
+
+  return (
+    <div className="flex flex-col h-full justify-between">
+      <div className="flex justify-between items-start">
+        <p className="text-sm font-medium text-orange-600 dark:text-orange-400 uppercase tracking-wider">Precio GNC / m³</p>
+        {!isEditing ? (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="p-1 hover:bg-orange-500/10 rounded-lg transition-colors text-orange-600"
+          >
+            <Edit3 className="w-4 h-4" />
+          </button>
+        ) : (
+          <div className="flex gap-1">
+            <button
+              onClick={handleSave}
+              className="p-1 hover:bg-green-500/10 rounded-lg transition-colors text-green-600"
+            >
+              <Save className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => {
+                setTempPrice(currentPrice)
+                setIsEditing(false)
+              }}
+              className="p-1 hover:bg-red-500/10 rounded-lg transition-colors text-red-600"
+            >
+              <CloseIcon className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+      </div>
+
+      {isEditing ? (
+        <div className="mt-2 flex items-center">
+          <span className="text-2xl font-bold text-orange-700 dark:text-orange-300 mr-1">$</span>
+          <input
+            type="number"
+            value={tempPrice}
+            onChange={(e) => setTempPrice(e.target.value)}
+            className="w-full bg-white dark:bg-slate-900 border border-orange-200 dark:border-orange-500/30 rounded-lg px-2 py-1 text-2xl font-bold text-orange-700 dark:text-orange-300 outline-none focus:ring-2 focus:ring-orange-500"
+            autoFocus
+          />
+        </div>
+      ) : (
+        <p className="text-4xl font-bold text-orange-700 dark:text-orange-300 mt-2">${currentPrice}</p>
+      )}
+    </div>
+  )
+}
+
 export default function Dashboard() {
-  const { data } = useData()
+  const { data, updateGncPrice } = useData()
   const [query, setQuery] = useState({
     fecha: getTodayDate(),
     tipo: 'mañana'
@@ -56,7 +119,7 @@ export default function Dashboard() {
           variants={container}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
         >
           {stats.map((stat, idx) => (
             <motion.div
@@ -68,6 +131,14 @@ export default function Dashboard() {
               <p className={`text-4xl font-bold text-${stat.color}-700 dark:text-${stat.color}-300 mt-2`}>{stat.value}</p>
             </motion.div>
           ))}
+
+          {/* Card para el precio del GNC */}
+          <motion.div
+            variants={item}
+            className="bg-orange-500/10 dark:bg-orange-500/20 p-6 rounded-2xl border border-orange-200/50 dark:border-orange-500/20 backdrop-blur-sm relative"
+          >
+            <PriceEditor currentPrice={data.pricePerCubicMeter} onSave={updateGncPrice} />
+          </motion.div>
         </motion.div>
 
         {/* Sección de Consulta Rápida */}

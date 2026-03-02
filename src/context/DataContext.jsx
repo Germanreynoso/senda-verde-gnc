@@ -9,7 +9,7 @@ export const DataProvider = ({ children }) => {
     users: [],
     products: [],
     shifts: [],
-    pricePerCubicMeter: 1500
+    pricePerCubicMeter: 0
   })
 
   const [currentUser, setCurrentUser] = useState(() => {
@@ -38,12 +38,14 @@ export const DataProvider = ({ children }) => {
       })) || []
 
       const { data: shifts } = await supabase.from('shifts').select('*').order('created_at', { ascending: false })
+      const { data: settings } = await supabase.from('settings').select('*').eq('key', 'gnc_price').single()
 
       setData(prev => ({
         ...prev,
         users: users || [],
         products: formattedProducts,
-        shifts: shifts || []
+        shifts: shifts || [],
+        pricePerCubicMeter: settings ? Number(settings.value) : 1500
       }))
     } catch (error) {
       console.error('Error fetching from Supabase:', error)
@@ -198,6 +200,30 @@ export const DataProvider = ({ children }) => {
     }
   }
 
+  const updateGncPrice = async (newPrice) => {
+    const { error } = await supabase
+      .from('settings')
+      .update({ value: newPrice })
+      .eq('key', 'gnc_price')
+
+    if (!error) {
+      setData(prev => ({ ...prev, pricePerCubicMeter: Number(newPrice) }))
+      toast.success('Precio del GNC actualizado')
+    } else {
+      // Si el registro no existe, intentar insertarlo
+      const { error: insertError } = await supabase
+        .from('settings')
+        .insert([{ key: 'gnc_price', value: newPrice }])
+
+      if (!insertError) {
+        setData(prev => ({ ...prev, pricePerCubicMeter: Number(newPrice) }))
+        toast.success('Precio del GNC guardado')
+      } else {
+        toast.error('Error al actualizar el precio')
+      }
+    }
+  }
+
   return (
     <DataContext.Provider value={{
       data,
@@ -213,7 +239,8 @@ export const DataProvider = ({ children }) => {
       deleteProduct,
       decreaseProductStock,
       addShift,
-      updateShift
+      updateShift,
+      updateGncPrice
     }}>
       {children}
     </DataContext.Provider>
