@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useData } from '../context/DataContext'
 import SurtidorCard from '../components/shift/SurtidorCard'
 import { Printer, Download, Plus, Trash2, X, Edit2, Check } from 'lucide-react'
@@ -32,16 +32,23 @@ export default function ShiftPage() {
   const [isSaving, setIsSaving] = useState(false)
   const [isEditingHeader, setIsEditingHeader] = useState(false)
 
-  // Sincronizar con el turno abierto si existe en la base de datos
+  // Ref para rastrear el ID del turno activo sin causar re-renders ni closures stale
+  const activeShiftIdRef = useRef(null)
+
+  // Sincronizar con el turno abierto: activeShift siempre refleja la DB,
+  // shiftForm solo se resetea cuando cambia el turno (ID distinto)
   useEffect(() => {
-    if (!data.shifts || data.shifts.length === 0) return
+    if (!data.shifts) return
 
     const openShift = data.shifts.find(s => s.estado === 'abierto')
 
     if (openShift) {
-      // Solo actualizamos si no hay turno activo o si cambió el ID
-      if (!activeShift || activeShift.id !== openShift.id) {
-        setActiveShift(openShift)
+      // Siempre actualizamos activeShift para que el UI refleje la DB sin refrescar
+      setActiveShift(openShift)
+
+      if (activeShiftIdRef.current !== openShift.id) {
+        // Turno nuevo o distinto → resetear el formulario
+        activeShiftIdRef.current = openShift.id
         setShiftForm({
           tipo: openShift.tipo,
           fecha: openShift.fecha,
@@ -57,10 +64,26 @@ export default function ShiftPage() {
         })
       }
     } else {
-      // Solo si estamos seguros de que no hay turnos abiertos
-      if (activeShift) setActiveShift(null)
+      if (activeShiftIdRef.current !== null) {
+        // El turno fue cerrado → limpiar todo
+        activeShiftIdRef.current = null
+        setActiveShift(null)
+        setShiftForm(prev => ({
+          ...prev,
+          fecha: getTodayDate(),
+          surtidores: [
+            { id: 1, lecturaInicial: '', lecturaFinal: '' },
+            { id: 2, lecturaInicial: '', lecturaFinal: '' },
+            { id: 3, lecturaInicial: '', lecturaFinal: '' },
+            { id: 4, lecturaInicial: '', lecturaFinal: '' }
+          ],
+          ventas: [],
+          depositos: [],
+          encargado: currentUser ? `${currentUser.nombre} ${currentUser.apellido}`.trim() : prev.encargado
+        }))
+      }
     }
-  }, [data.shifts, activeShift])
+  }, [data.shifts]) // Solo depende de data.shifts para evitar bucles
 
   const handleOpenShift = async () => {
     if (activeShift) return
@@ -254,7 +277,8 @@ export default function ShiftPage() {
         { id: 4, lecturaInicial: '', lecturaFinal: '' }
       ],
       ventas: [],
-      depositos: []
+      depositos: [],
+      encargado: currentUser ? `${currentUser.nombre} ${currentUser.apellido}`.trim() : ''
     })
   }
 
@@ -359,10 +383,10 @@ export default function ShiftPage() {
                   <div className="flex items-center group">
                     <div>
                       <h2 className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight flex items-center">
-                        Turno {activeShift.tipo.toUpperCase()}
+                        Turno {shiftForm.tipo.toUpperCase()}
                       </h2>
                       <p className="text-gray-600 flex items-center">
-                        {formatDate(activeShift.fecha)} | Operator: {activeShift.encargado}
+                        {formatDate(shiftForm.fecha)} | Playero: {shiftForm.encargado || activeShift.encargado}
                       </p>
                     </div>
                     <button
