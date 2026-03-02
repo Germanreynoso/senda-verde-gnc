@@ -28,8 +28,18 @@ export const DataProvider = ({ children }) => {
     // Solo mostrar cargando si es la primera vez (no hay datos) y no es silent
     if (!silent && data.users.length === 0) setLoading(true)
     try {
-      const { data: users } = await supabase.from('users').select('*')
-      const { data: products } = await supabase.from('products').select('*')
+      const results = await Promise.allSettled([
+        supabase.from('users').select('*'),
+        supabase.from('products').select('*'),
+        supabase.from('shifts').select('*').order('created_at', { ascending: false }),
+        supabase.from('settings').select('*').eq('key', 'gnc_price').single()
+      ])
+
+      const users = results[0].status === 'fulfilled' ? results[0].value.data : []
+      const products = results[1].status === 'fulfilled' ? results[1].value.data : []
+      const shifts = results[2].status === 'fulfilled' ? results[2].value.data : []
+      const settings = results[3].status === 'fulfilled' ? results[3].value.data : null
+
       // Map products to ensure numbers (decirmal -> number)
       const formattedProducts = products?.map(p => ({
         ...p,
@@ -37,15 +47,12 @@ export const DataProvider = ({ children }) => {
         stock: Number(p.stock)
       })) || []
 
-      const { data: shifts } = await supabase.from('shifts').select('*').order('created_at', { ascending: false })
-      const { data: settings } = await supabase.from('settings').select('*').eq('key', 'gnc_price').single()
-
       setData(prev => ({
         ...prev,
         users: users || [],
         products: formattedProducts,
         shifts: shifts || [],
-        pricePerCubicMeter: settings ? Number(settings.value) : 1500
+        pricePerCubicMeter: settings && settings.value ? Number(settings.value) : 1500
       }))
     } catch (error) {
       console.error('Error fetching from Supabase:', error)
