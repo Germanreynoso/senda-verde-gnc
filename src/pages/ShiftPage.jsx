@@ -20,7 +20,8 @@ export default function ShiftPage() {
       { id: 4, lecturaInicial: '', lecturaFinal: '' }
     ],
     ventas: [],
-    depositos: []
+    depositos: [],
+    encargado: currentUser ? `${currentUser.nombre} ${currentUser.apellido}`.trim() : ''
   })
 
   const [productSaleForm, setProductSaleForm] = useState({ productId: '', cantidad: '' })
@@ -51,7 +52,8 @@ export default function ShiftPage() {
             { id: 4, lecturaInicial: '', lecturaFinal: '' }
           ],
           ventas: openShift.ventas || [],
-          depositos: openShift.depositos || []
+          depositos: openShift.depositos || [],
+          encargado: openShift.encargado || `${currentUser?.nombre || ''} ${currentUser?.apellido || ''}`.trim()
         })
       }
     } else {
@@ -94,6 +96,7 @@ export default function ShiftPage() {
       ...activeShift,
       tipo: shiftForm.tipo,
       fecha: shiftForm.fecha,
+      encargado: shiftForm.encargado,
       surtidores: shiftForm.surtidores,
       ventas: shiftForm.ventas,
       depositos: shiftForm.depositos
@@ -211,7 +214,7 @@ export default function ShiftPage() {
       ventas: shiftForm.ventas,
       estado: 'cerrado',
       fechaCierre: new Date().toISOString(),
-      encargado: `${currentUser.nombre} ${currentUser.apellido}` // Actualizar encargado al cerrar
+      encargado: shiftForm.encargado || `${currentUser.nombre} ${currentUser.apellido}`
     }
     await updateShift(updatedShift)
 
@@ -323,6 +326,16 @@ export default function ShiftPage() {
                           value={shiftForm.fecha}
                           onChange={e => setShiftForm({ ...shiftForm, fecha: e.target.value })}
                           className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-sm font-bold text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-[10px] font-black uppercase tracking-widest text-blue-600 mb-1">Playero / Encargado</label>
+                        <input
+                          type="text"
+                          value={shiftForm.encargado}
+                          onChange={e => setShiftForm({ ...shiftForm, encargado: e.target.value })}
+                          className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-sm font-bold text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Nombre del encargado"
                         />
                       </div>
                     </div>
