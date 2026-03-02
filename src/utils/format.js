@@ -18,3 +18,9 @@ export const getTodayDate = () => {
     const localToday = new Date(today.getTime() - (offset * 60 * 1000))
     return localToday.toISOString().split('T')[0]
 }
+
+export const formatTime = (isoString) => {
+    if (!isoString) return ''
+    const date = new Date(isoString)
+    return date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+}

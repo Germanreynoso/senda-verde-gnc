@@ -210,21 +210,15 @@ export const DataProvider = ({ children }) => {
   const updateGncPrice = async (newPrice) => {
     const { error } = await supabase
       .from('settings')
-      .update({ value: newPrice })
-      .eq('key', 'gnc_price')
+      .upsert({ key: 'gnc_price', value: newPrice }, { onConflict: 'key' })
 
     if (!error) {
       setData(prev => ({ ...prev, pricePerCubicMeter: Number(newPrice) }))
-      toast.success('Precio del GNC actualizado')
+      toast.success('Precio del GNC actualizado correctamente')
     } else {
-      // Si el registro no existe, intentar insertarlo
-      const { error: insertError } = await supabase
-        .from('settings')
-        .insert([{ key: 'gnc_price', value: newPrice }])
-
-      if (!insertError) {
-        setData(prev => ({ ...prev, pricePerCubicMeter: Number(newPrice) }))
-        toast.success('Precio del GNC guardado')
+      console.error('Error upserting price:', error)
+      if (error.code === 'PGRST205' || error.message?.includes('not find')) {
+        toast.error('Error: La tabla "settings" no existe en Supabase. Asegúrate de crearla en el panel de SQL.')
       } else {
         toast.error('Error al actualizar el precio')
       }

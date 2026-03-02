@@ -1,5 +1,5 @@
 import * as XLSX from 'xlsx';
-import { formatDate } from './format';
+import { formatDate, formatTime } from './format';
 
 export function generateShiftExcel(shift, pricePerCubicMeter) {
     const totalSurtidores = shift.surtidores.reduce((sum, s) => {
@@ -15,6 +15,8 @@ export function generateShiftExcel(shift, pricePerCubicMeter) {
         ['INFORME DE CIERRE DE TURNO'],
         [''],
         ['Fecha', formatDate(shift.fecha)],
+        ['Apertura', formatTime(shift.fecha_apertura || shift.fechaApertura)],
+        ['Cierre', formatTime(shift.fecha_cierre || shift.fechaCierre)],
         ['Turno', shift.tipo.toUpperCase()],
         ['Encargado', shift.encargado],
         [''],

@@ -27,9 +27,9 @@ export default function SalesChart({ shifts = [], pricePerCubicMeter }) {
     })
 
     return (
-        <div style={{ width: '100%', height: 300, minHeight: 300 }} className="mt-8">
+        <div className="mt-8 w-full h-[300px] min-h-[300px]">
             <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4">Ventas de los Últimos Turnos</h3>
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="100%" height="100%" minHeight={200}>
                 <AreaChart data={chartData}>
                     <defs>
                         <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">

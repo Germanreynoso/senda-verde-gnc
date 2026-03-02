@@ -77,7 +77,8 @@ export default function ShiftPage() {
       surtidores: initialSurtidores,
       encargado: `${currentUser.nombre} ${currentUser.apellido}`,
       estado: 'abierto',
-      fechaApertura: new Date().toISOString()
+      fechaApertura: new Date().toISOString(),
+      fecha: getTodayDate() // Asegurar que siempre sea la fecha de hoy al abrir uno nuevo
     }
 
     const savedShift = await addShift(newShiftData)
@@ -209,7 +210,8 @@ export default function ShiftPage() {
       surtidores: shiftForm.surtidores,
       ventas: shiftForm.ventas,
       estado: 'cerrado',
-      fechaCierre: new Date().toISOString()
+      fechaCierre: new Date().toISOString(),
+      encargado: `${currentUser.nombre} ${currentUser.apellido}` // Actualizar encargado al cerrar
     }
     await updateShift(updatedShift)
 
