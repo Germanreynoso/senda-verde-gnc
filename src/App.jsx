@@ -60,9 +60,12 @@ function InnerApp() {
         toggleTheme={toggleTheme}
       />
 
-      <div className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className={`lg:col-span-1 no-print ${mobileMenuOpen ? 'block' : 'hidden lg:block'}`}>
+      <div className={activeSection === 'shift' ? 'w-full px-3 py-4' : 'container mx-auto px-4 py-6'}>
+        <div className={activeSection === 'shift'
+          ? 'flex gap-4 items-start'
+          : 'grid grid-cols-1 lg:grid-cols-4 gap-6'
+        }>
+          <div className={`no-print shrink-0 ${activeSection === 'shift' ? 'w-52' : 'lg:col-span-1'} ${mobileMenuOpen ? 'block' : 'hidden lg:block'}`}>
             <Sidebar
               activeSection={activeSection}
               setActiveSection={setActiveSection}
@@ -72,7 +75,7 @@ function InnerApp() {
             />
           </div>
 
-          <div className="lg:col-span-3">
+          <div className={activeSection === 'shift' ? 'flex-1 min-w-0' : 'lg:col-span-3'}>
             <AnimatePresence mode="wait">
               <PageTransition key={activeSection}>
                 {activeSection === 'dashboard' && currentUser.rol === 'administrador' && <Dashboard />}
