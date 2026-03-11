@@ -290,35 +290,36 @@ export default function ShiftPage() {
   const totals = calculateTotals()
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {!activeShift ? (
-        <div className="glass rounded-2xl shadow-xl p-8 transition-all duration-300">
-          <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-8 tracking-tight">Abrir Turno</h2>
-          <div className="space-y-6">
-            <div className="bg-white/50 dark:bg-slate-800/50 p-6 rounded-2xl border border-gray-100 dark:border-slate-700/50">
-              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Tipo de Turno</label>
+        /* ── PANTALLA ABRIR TURNO ── */
+        <div className="glass rounded-2xl shadow-xl p-8 max-w-lg mx-auto">
+          <h2 className="text-2xl font-black text-gray-800 dark:text-white mb-6 tracking-tight">Abrir Turno</h2>
+          <div className="space-y-4">
+            <div>
+              <label className="block text-xs font-black text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-widest">Tipo de Turno</label>
               <select
                 value={shiftForm.tipo}
                 onChange={e => setShiftForm({ ...shiftForm, tipo: e.target.value })}
-                className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-800 dark:text-white"
+                className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-800 dark:text-white font-bold"
               >
                 <option value="mañana">Mañana</option>
                 <option value="tarde">Tarde</option>
               </select>
             </div>
             <div>
-              <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2 uppercase tracking-wide">Fecha</label>
+              <label className="block text-xs font-black text-gray-500 dark:text-gray-400 mb-1.5 uppercase tracking-widest">Fecha</label>
               <input
                 type="date"
                 value={shiftForm.fecha}
                 onChange={e => setShiftForm({ ...shiftForm, fecha: e.target.value })}
-                className="w-full px-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-gray-800 dark:text-white"
+                className="w-full px-4 py-2.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none text-gray-800 dark:text-white"
               />
             </div>
             <button
               type="button"
               onClick={handleOpenShift}
-              className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 font-semibold no-print"
+              className="w-full bg-blue-600 text-white py-3 rounded-xl hover:bg-blue-700 font-black tracking-wide transition-all active:scale-95 shadow-lg"
             >
               Abrir Turno
             </button>
@@ -326,426 +327,384 @@ export default function ShiftPage() {
         </div>
       ) : (
         <>
-          <div className="glass rounded-2xl shadow-xl p-4 sm:p-8 transition-all duration-300">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-gray-100 dark:border-slate-700/50">
-              <div className="w-full md:w-auto">
-                {isEditingHeader ? (
-                  <div className="space-y-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-200 dark:border-blue-800/50 mb-4 md:mb-0">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-[10px] font-black uppercase tracking-widest text-blue-600 mb-1">Tipo de Turno</label>
-                        <select
-                          value={shiftForm.tipo}
-                          onChange={e => setShiftForm({ ...shiftForm, tipo: e.target.value })}
-                          className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-sm font-bold text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="mañana">MAÑANA</option>
-                          <option value="tarde">TARDE</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-[10px] font-black uppercase tracking-widest text-blue-600 mb-1">Fecha</label>
-                        <input
-                          type="date"
-                          value={shiftForm.fecha}
-                          onChange={e => setShiftForm({ ...shiftForm, fecha: e.target.value })}
-                          className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-sm font-bold text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </div>
-                      <div className="sm:col-span-2">
-                        <label className="block text-[10px] font-black uppercase tracking-widest text-blue-600 mb-1">Playero / Encargado</label>
-                        <input
-                          type="text"
-                          value={shiftForm.encargado}
-                          onChange={e => setShiftForm({ ...shiftForm, encargado: e.target.value })}
-                          className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl text-sm font-bold text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Nombre del encargado"
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-end space-x-2">
-                      <button
-                        onClick={() => setIsEditingHeader(false)}
-                        className="px-3 py-1.5 text-xs font-bold text-gray-500 hover:text-gray-700 uppercase"
-                      >
-                        Cancelar
-                      </button>
-                      <button
-                        onClick={handleSaveProgress}
-                        className="px-4 py-1.5 bg-blue-600 text-white text-xs font-bold rounded-lg hover:bg-blue-700 flex items-center"
-                      >
-                        <Check className="w-3 h-3 mr-1" />
-                        Confirmar Cambio
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center group">
-                    <div>
-                      <h2 className="text-3xl font-black text-blue-600 dark:text-blue-400 tracking-tight flex items-center">
-                        Turno {shiftForm.tipo.toUpperCase()}
-                      </h2>
-                      <p className="text-gray-600 flex items-center">
-                        {formatDate(shiftForm.fecha)} | Playero: {shiftForm.encargado || activeShift.encargado}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setIsEditingHeader(true)}
-                      className="ml-4 p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-full opacity-0 group-hover:opacity-100 transition-all no-print"
-                      title="Editar Fecha o Turno"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-col md:flex-row items-center gap-3 no-print mt-4 md:mt-0">
-                <button
-                  type="button"
-                  onClick={handleSaveProgress}
-                  disabled={isSaving}
-                  className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-bold transition-all ${isSaving
-                    ? 'bg-gray-100 text-gray-400'
-                    : 'bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white shadow-sm'
-                    }`}
+          {/* ── HEADER BAR ── */}
+          <div className="glass rounded-2xl shadow-xl px-6 py-4 flex items-center justify-between">
+            {isEditingHeader ? (
+              <div className="flex items-center gap-3 flex-1">
+                <select
+                  value={shiftForm.tipo}
+                  onChange={e => setShiftForm({ ...shiftForm, tipo: e.target.value })}
+                  className="px-3 py-1.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm font-bold text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <Plus className={`w-4 h-4 ${isSaving ? 'animate-spin' : ''}`} />
-                  <span>{isSaving ? 'Guardando...' : 'Guardar Progreso'}</span>
+                  <option value="mañana">MAÑANA</option>
+                  <option value="tarde">TARDE</option>
+                </select>
+                <input
+                  type="date"
+                  value={shiftForm.fecha}
+                  onChange={e => setShiftForm({ ...shiftForm, fecha: e.target.value })}
+                  className="px-3 py-1.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="text"
+                  value={shiftForm.encargado}
+                  onChange={e => setShiftForm({ ...shiftForm, encargado: e.target.value })}
+                  className="px-3 py-1.5 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg text-sm text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Encargado"
+                />
+                <button onClick={handleSaveProgress} className="px-3 py-1.5 bg-blue-600 text-white text-xs font-black rounded-lg hover:bg-blue-700 flex items-center gap-1">
+                  <Check className="w-3 h-3" /> Confirmar
                 </button>
-                <span className="bg-green-100 text-green-800 px-4 py-2 rounded-xl text-xs font-black uppercase tracking-widest">
-                  {activeShift.estado}
-                </span>
+                <button onClick={() => setIsEditingHeader(false)} className="px-3 py-1.5 text-xs font-bold text-gray-500 hover:text-gray-700">
+                  Cancelar
+                </button>
               </div>
-            </div>
-            <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 mb-6 flex items-center">
-              <span className="w-1.5 h-6 bg-blue-600 rounded-full mr-3"></span>
-              Gestión de Surtidores
-            </h2>
-            <div className="overflow-x-auto bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
-              <table className="w-full text-xs text-left border-collapse">
-                <thead>
-                  <tr className="bg-blue-600 text-white border-b border-blue-700">
-                    <th colSpan="7" className="px-4 py-2 text-center font-black uppercase tracking-widest text-base">
-                      AFORADORES (GNC)
-                    </th>
-                  </tr>
-                  <tr className="bg-gray-100 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 text-[10px] font-black uppercase text-gray-600 dark:text-gray-400">
-                    <th className="px-2 py-3 text-center">SURTIDOR</th>
-                    <th className="px-1 py-3"></th>
-                    <th className="px-3 py-3 text-center">INICIO (m³)</th>
-                    <th className="px-3 py-3 text-center">SALIDA (m³)</th>
-                    <th className="px-3 py-3 text-center">METROS</th>
-                    <th className="px-3 py-3 text-center">PRECIO</th>
-                    <th className="px-3 py-3 text-right">TOTAL (G)</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
-                  {shiftForm.surtidores.map((s, i) => {
-                    const metros = (parseFloat(s.lecturaFinal) || 0) - (parseFloat(s.lecturaInicial) || 0)
-                    const totalSurtidor = metros * data.pricePerCubicMeter
-                    return (
-                      <tr key={s.id} className="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
-                        <td className="px-2 py-3 text-center font-black text-blue-600 dark:text-blue-400 text-base">{s.id}</td>
-                        <td className="px-1 py-3 w-2 font-bold text-gray-300">|</td>
-                        <td className="px-2 py-2">
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={s.lecturaInicial}
-                            onChange={e => handleUpdateSurtidor(i, 'lecturaInicial', e.target.value)}
-                            className="w-full px-2 py-1.5 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-center font-bold text-gray-800 dark:text-white"
-                          />
-                        </td>
-                        <td className="px-2 py-2">
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={s.lecturaFinal}
-                            onChange={e => handleUpdateSurtidor(i, 'lecturaFinal', e.target.value)}
-                            className="w-full px-2 py-1.5 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-center font-bold text-gray-800 dark:text-white"
-                          />
-                        </td>
-                        <td className="px-3 py-3 text-center font-black text-gray-700 dark:text-gray-200 bg-gray-50/50 dark:bg-slate-800/50">
-                          {metros.toFixed(2)}
-                        </td>
-                        <td className="px-3 py-3 text-center text-gray-500 dark:text-gray-400 font-medium">
-                          ${data.pricePerCubicMeter.toFixed(2)}
-                        </td>
-                        <td className="px-3 py-3 text-right font-black text-blue-600 dark:text-blue-400 text-base">
-                          ${totalSurtidor.toFixed(2)}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-                <tfoot className="bg-gray-50 dark:bg-slate-900 font-black border-t-2 border-gray-200 dark:border-slate-700">
-                  <tr className="text-gray-800 dark:text-white">
-                    <td className="px-2 py-3 text-center text-blue-600 text-[10px]">TOTALES</td>
-                    <td className="px-1 py-3"></td>
-                    <td className="px-2 py-3 text-center bg-gray-100 dark:bg-slate-800">
-                      {shiftForm.surtidores.reduce((acc, s) => acc + (parseFloat(s.lecturaInicial) || 0), 0).toFixed(2)}
-                    </td>
-                    <td className="px-2 py-3 text-center bg-gray-100 dark:bg-slate-800">
-                      {shiftForm.surtidores.reduce((acc, s) => acc + (parseFloat(s.lecturaFinal) || 0), 0).toFixed(2)}
-                    </td>
-                    <td className="px-3 py-3 text-center text-blue-600">
-                      {shiftForm.surtidores.reduce((acc, s) => acc + ((parseFloat(s.lecturaFinal) || 0) - (parseFloat(s.lecturaInicial) || 0)), 0).toFixed(2)} m³
-                    </td>
-                    <td className="px-3 py-3 text-center"></td>
-                    <td className="px-3 py-3 text-right text-blue-600 dark:text-blue-400 text-lg underline decoration-double">
-                      ${totals.surtidores.toFixed(2)}
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
+            ) : (
+              <div className="flex items-center gap-3 group">
+                <h2 className="text-xl font-black text-blue-600 dark:text-blue-400 tracking-tight">
+                  Turno {shiftForm.tipo.toUpperCase()}
+                </h2>
+                <span className="text-gray-400 text-sm">|</span>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">{formatDate(shiftForm.fecha)}</p>
+                <span className="text-gray-400 text-sm">|</span>
+                <p className="text-gray-600 dark:text-gray-300 text-sm font-semibold">{shiftForm.encargado || activeShift.encargado}</p>
+                <button
+                  onClick={() => setIsEditingHeader(true)}
+                  className="ml-1 p-1 text-gray-300 hover:text-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-all no-print"
+                >
+                  <Edit2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
+            <div className="flex items-center gap-3 no-print">
+              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-xs font-black uppercase tracking-widest">
+                {activeShift.estado}
+              </span>
+              <button
+                type="button"
+                onClick={handleSaveProgress}
+                disabled={isSaving}
+                className={`flex items-center gap-2 px-4 py-1.5 rounded-lg font-bold text-sm transition-all ${isSaving ? 'bg-gray-100 text-gray-400' : 'bg-blue-100 text-blue-600 hover:bg-blue-600 hover:text-white'}`}
+              >
+                <Plus className={`w-4 h-4 ${isSaving ? 'animate-spin' : ''}`} />
+                {isSaving ? 'Guardando...' : 'Guardar'}
+              </button>
             </div>
           </div>
 
-          {/* Sección de Ventas - APARTADO DISTINTO */}
-          <div className="glass rounded-2xl shadow-xl p-4 sm:p-8 transition-all duration-300">
-            <div className="flex items-center mb-6">
-              <span className="w-1.5 h-6 bg-purple-600 rounded-full mr-3"></span>
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-white tracking-tight">Ventas de Productos (VTA)</h2>
-            </div>
+          {/* ── LAYOUT 2 COLUMNAS ── */}
+          <div className="grid grid-cols-[1fr_360px] gap-4 items-start">
 
-            <div className="mb-6 p-6 bg-purple-500/5 dark:bg-white/5 rounded-2xl border border-purple-200/20 dark:border-white/10 no-print">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="relative flex flex-col">
-                  <input
-                    type="text"
-                    placeholder="Escriba para buscar producto..."
-                    value={productSearch}
-                    onChange={e => {
-                      setProductSearch(e.target.value)
-                      setProductSaleForm({ ...productSaleForm, productId: '' })
-                    }}
-                    className="px-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none w-full text-gray-800 dark:text-white transition-all shadow-sm"
-                  />
+            {/* COLUMNA IZQUIERDA */}
+            <div className="space-y-4">
 
-                  {productSearch && (
-                    <div className="absolute z-10 w-full mt-14 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl shadow-2xl max-h-60 overflow-y-auto no-print backdrop-blur-xl">
-                      {data.products
-                        .filter(p => p.nombre.toLowerCase().includes(productSearch.toLowerCase()))
-                        .map(p => (
+              {/* TABLA AFORADORES */}
+              <div className="glass rounded-2xl shadow-xl overflow-hidden">
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="bg-blue-600 text-white">
+                      <th colSpan="6" className="px-5 py-2.5 text-center font-black uppercase tracking-widest text-sm">
+                        AFORADORES (GNC)
+                      </th>
+                    </tr>
+                    <tr className="bg-gray-50 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 text-[11px] font-black uppercase text-gray-500 dark:text-gray-400 tracking-wide">
+                      <th className="px-5 py-3 text-center w-24">Surtidor</th>
+                      <th className="px-4 py-3 text-center">Inicio (m³)</th>
+                      <th className="px-4 py-3 text-center">Salida (m³)</th>
+                      <th className="px-4 py-3 text-center">Metros</th>
+                      <th className="px-4 py-3 text-center">Precio</th>
+                      <th className="px-4 py-3 text-right">Total (G)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-slate-700/50">
+                    {shiftForm.surtidores.map((s, i) => {
+                      const metros = (parseFloat(s.lecturaFinal) || 0) - (parseFloat(s.lecturaInicial) || 0)
+                      const totalSurtidor = metros * data.pricePerCubicMeter
+                      return (
+                        <tr key={s.id} className="hover:bg-blue-50/20 dark:hover:bg-blue-900/10 transition-colors">
+                          <td className="px-5 py-3 text-center font-black text-blue-600 dark:text-blue-400 text-base">{s.id}</td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={s.lecturaInicial}
+                              onChange={e => handleUpdateSurtidor(i, 'lecturaInicial', e.target.value)}
+                              className="w-full px-3 py-1.5 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-center font-bold text-gray-800 dark:text-white text-sm"
+                            />
+                          </td>
+                          <td className="px-3 py-2">
+                            <input
+                              type="number"
+                              step="0.01"
+                              value={s.lecturaFinal}
+                              onChange={e => handleUpdateSurtidor(i, 'lecturaFinal', e.target.value)}
+                              className="w-full px-3 py-1.5 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-center font-bold text-gray-800 dark:text-white text-sm"
+                            />
+                          </td>
+                          <td className="px-4 py-3 text-center font-black text-gray-700 dark:text-gray-200 bg-gray-50/50 dark:bg-slate-800/30">
+                            {metros.toFixed(2)}
+                          </td>
+                          <td className="px-4 py-3 text-center text-gray-400 dark:text-gray-500 text-xs font-medium">
+                            ${data.pricePerCubicMeter.toFixed(2)}
+                          </td>
+                          <td className="px-4 py-3 text-right font-black text-blue-600 dark:text-blue-400">
+                            ${totalSurtidor.toFixed(2)}
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                  <tfoot className="bg-gray-50 dark:bg-slate-900 border-t-2 border-blue-200 dark:border-blue-900">
+                    <tr className="font-black text-sm">
+                      <td className="px-5 py-3 text-center text-blue-600 dark:text-blue-400 text-xs uppercase tracking-widest">Totales</td>
+                      <td className="px-4 py-3 text-center text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-800">
+                        {shiftForm.surtidores.reduce((a, s) => a + (parseFloat(s.lecturaInicial) || 0), 0).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-center text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-800">
+                        {shiftForm.surtidores.reduce((a, s) => a + (parseFloat(s.lecturaFinal) || 0), 0).toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-center text-blue-600 dark:text-blue-400">
+                        {shiftForm.surtidores.reduce((a, s) => a + ((parseFloat(s.lecturaFinal) || 0) - (parseFloat(s.lecturaInicial) || 0)), 0).toFixed(2)} m³
+                      </td>
+                      <td></td>
+                      <td className="px-4 py-3 text-right text-blue-600 dark:text-blue-400 text-base underline decoration-double">
+                        ${totals.surtidores.toFixed(2)}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+
+              {/* VENTAS */}
+              <div className="glass rounded-2xl shadow-xl p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base font-black text-gray-800 dark:text-white flex items-center gap-2">
+                    <span className="w-1 h-5 bg-purple-600 rounded-full"></span>
+                    Ventas de Productos
+                    <span className="text-xs font-black text-purple-600 bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 rounded-full">VTA</span>
+                  </h2>
+                  {shiftForm.ventas.length > 0 && (
+                    <span className="text-purple-600 font-black text-sm">${totals.productos.toFixed(2)}</span>
+                  )}
+                </div>
+
+                {/* Formulario agregar venta */}
+                <div className="flex gap-3 mb-4 no-print">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      placeholder="Buscar producto..."
+                      value={productSearch}
+                      onChange={e => {
+                        setProductSearch(e.target.value)
+                        setProductSaleForm({ ...productSaleForm, productId: '' })
+                      }}
+                      className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-800 dark:text-white text-sm"
+                    />
+                    {productSearch && (
+                      <div className="absolute z-10 w-full top-full mt-1 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-700 rounded-xl shadow-2xl max-h-48 overflow-y-auto">
+                        {data.products.filter(p => p.nombre.toLowerCase().includes(productSearch.toLowerCase())).map(p => (
                           <div
                             key={p.id}
                             onClick={() => {
                               setProductSaleForm({ ...productSaleForm, productId: p.id.toString() })
                               setProductSearch(p.nombre)
                             }}
-                            className={`px-4 py-3 cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/30 border-b border-gray-100 dark:border-slate-700 last:border-b-0 flex justify-between items-center transition-colors ${productSaleForm.productId === p.id.toString() ? 'bg-purple-100 dark:bg-purple-900/50' : ''}`}
+                            className={`px-4 py-2.5 cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/20 border-b border-gray-100 dark:border-slate-700 last:border-0 flex justify-between items-center text-sm ${productSaleForm.productId === p.id.toString() ? 'bg-purple-100 dark:bg-purple-900/40' : ''}`}
                           >
                             <span className="font-medium text-gray-800 dark:text-white">{p.nombre}</span>
-                            <span className="text-[10px] font-bold px-2 py-1 bg-gray-100 dark:bg-slate-700 rounded text-gray-600 dark:text-gray-400 uppercase tracking-tighter">
-                              Stock: {p.stock}
-                            </span>
+                            <span className="text-[10px] font-black bg-gray-100 dark:bg-slate-700 px-2 py-0.5 rounded text-gray-500 dark:text-gray-400">Stock: {p.stock}</span>
                           </div>
                         ))}
-                    </div>
-                  )}
+                      </div>
+                    )}
+                  </div>
+                  <input
+                    type="number"
+                    placeholder="Cant."
+                    value={productSaleForm.cantidad}
+                    onChange={e => setProductSaleForm({ ...productSaleForm, cantidad: e.target.value })}
+                    className="w-24 px-3 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none text-gray-800 dark:text-white text-sm text-center font-bold"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddProductSale}
+                    className="bg-purple-600 text-white px-4 py-2 rounded-xl hover:bg-purple-700 flex items-center gap-2 font-bold text-sm transition-all active:scale-95 whitespace-nowrap"
+                  >
+                    <Plus className="w-4 h-4" /> Agregar
+                  </button>
                 </div>
-                <input
-                  type="number"
-                  placeholder="Cantidad"
-                  value={productSaleForm.cantidad}
-                  onChange={e => setProductSaleForm({ ...productSaleForm, cantidad: e.target.value })}
-                  className="px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none w-full text-gray-800 dark:text-white transition-all shadow-sm"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddProductSale}
-                  className="bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 flex items-center justify-center space-x-2 font-bold shadow-lg transition-all active:scale-95"
-                >
-                  <Plus className="w-5 h-5" />
-                  <span>Agregar Venta</span>
-                </button>
-              </div>
-            </div>
 
-            {shiftForm.ventas.length > 0 ? (
-              <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm">
-                <table className="w-full">
-                  <thead className="bg-gray-50 dark:bg-slate-900/80">
-                    <tr className="text-[10px] font-black uppercase text-gray-500 tracking-widest border-b border-gray-100 dark:border-slate-700">
-                      <th className="px-6 py-4 text-left">Producto</th>
-                      <th className="px-6 py-4 text-center">Cantidad</th>
-                      <th className="px-6 py-4 text-center">Precio Unit.</th>
-                      <th className="px-6 py-4 text-right">Subtotal</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
-                    {shiftForm.ventas.map(v => (
-                      <tr key={v.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/30 transition-colors">
-                        <td className="px-6 py-4 font-medium text-gray-800 dark:text-white">{v.nombre}</td>
-                        <td className="px-6 py-4 text-center font-bold text-gray-600 dark:text-gray-400">{v.cantidad}</td>
-                        <td className="px-6 py-4 text-center text-gray-500">${v.precio.toFixed(2)}</td>
-                        <td className="px-6 py-4 text-right font-black text-gray-800 dark:text-white">${v.total.toFixed(2)}</td>
+                {shiftForm.ventas.length > 0 ? (
+                  <table className="w-full text-sm">
+                    <thead className="border-b border-gray-100 dark:border-slate-700">
+                      <tr className="text-[10px] font-black uppercase text-gray-400 tracking-widest">
+                        <th className="pb-2 text-left">Producto</th>
+                        <th className="pb-2 text-center">Cant.</th>
+                        <th className="pb-2 text-center">Precio</th>
+                        <th className="pb-2 text-right">Subtotal</th>
                       </tr>
-                    ))}
-                  </tbody>
-                  <tfoot className="bg-purple-50 dark:bg-purple-900/20 font-black">
-                    <tr>
-                      <td colSpan="3" className="px-6 py-5 text-right text-purple-600 uppercase tracking-widest text-sm">Total Ventas (VTA):</td>
-                      <td className="px-6 py-5 text-right text-purple-700 dark:text-purple-400 text-xl border-t-2 border-purple-200 dark:border-purple-800">
-                        ${totals.productos.toFixed(2)}
-                      </td>
-                    </tr>
-                  </tfoot>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
+                      {shiftForm.ventas.map(v => (
+                        <tr key={v.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/20 transition-colors">
+                          <td className="py-2 font-medium text-gray-800 dark:text-white">{v.nombre}</td>
+                          <td className="py-2 text-center font-bold text-gray-500">{v.cantidad}</td>
+                          <td className="py-2 text-center text-gray-400 text-xs">${v.precio.toFixed(2)}</td>
+                          <td className="py-2 text-right font-black text-gray-800 dark:text-white">${v.total.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                    <tfoot className="border-t border-purple-200 dark:border-purple-900">
+                      <tr>
+                        <td colSpan="3" className="pt-2 text-right text-purple-600 font-black text-xs uppercase tracking-widest">Total VTA:</td>
+                        <td className="pt-2 text-right text-purple-700 dark:text-purple-400 font-black">${totals.productos.toFixed(2)}</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                ) : (
+                  <div className="text-center py-6 border-2 border-dashed border-gray-100 dark:border-slate-700 rounded-xl">
+                    <p className="text-gray-400 text-sm">Sin ventas registradas</p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="text-center py-10 bg-gray-50 dark:bg-slate-900/30 rounded-2xl border-2 border-dashed border-gray-200 dark:border-slate-700">
-                <p className="text-gray-400 font-medium">No hay ventas registradas en este turno</p>
-              </div>
-            )}
-          </div>
+            </div>
 
-          {/* Sección de Depósitos */}
-          <div className="glass rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border-l-4 border-yellow-500 transition-all duration-300">
-            <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-white tracking-tight flex items-center">
-                <span className="w-1.5 h-6 bg-yellow-500 rounded-full mr-3"></span>
-                Efectivo Depositado
-              </h2>
-              <div className="flex space-x-2 mt-4 md:mt-0">
-                <div className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 px-4 py-2 rounded-xl text-sm font-black border border-yellow-200 dark:border-yellow-800/50">
-                  RECAUDADO EN SOBRES: ${totals.depositos.toFixed(2)}
+            {/* COLUMNA DERECHA */}
+            <div className="space-y-4">
+
+              {/* DEPÓSITOS */}
+              <div className="glass rounded-2xl shadow-xl p-5 border-l-4 border-yellow-500">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-base font-black text-gray-800 dark:text-white flex items-center gap-2">
+                    <span className="w-1 h-5 bg-yellow-500 rounded-full"></span>
+                    Depósitos
+                  </h2>
+                  <span className="text-yellow-600 font-black text-sm">${totals.depositos.toFixed(2)}</span>
                 </div>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 no-print p-6 bg-yellow-500/5 dark:bg-yellow-500/5 rounded-2xl border border-yellow-200/20">
-              <input
-                type="text"
-                placeholder="N° de Sobre"
-                value={depositForm.numeroSobre}
-                onChange={e => setDepositForm({ ...depositForm, numeroSobre: e.target.value })}
-                className="px-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none w-full text-gray-800 dark:text-white transition-all shadow-sm"
-              />
-              <input
-                type="number"
-                placeholder="Monto ($)"
-                value={depositForm.monto}
-                onChange={e => setDepositForm({ ...depositForm, monto: e.target.value })}
-                className="px-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none w-full text-gray-800 dark:text-white transition-all shadow-sm"
-              />
-              <input
-                type="text"
-                placeholder="Nota (opcional)"
-                value={depositForm.nota}
-                onChange={e => setDepositForm({ ...depositForm, nota: e.target.value })}
-                className="px-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none w-full text-gray-800 dark:text-white transition-all shadow-sm"
-              />
-              <button
-                type="button"
-                onClick={handleAddDeposit}
-                className="bg-yellow-600 text-white px-6 py-3 rounded-xl hover:bg-yellow-700 font-bold shadow-lg transition-all active:scale-95 flex items-center justify-center space-x-2"
-              >
-                <Plus className="w-5 h-5" />
-                <span>Registrar Sobre</span>
-              </button>
-            </div>
-
-            {shiftForm.depositos.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {shiftForm.depositos.map(d => (
-                  <div key={d.id} className="group bg-white dark:bg-slate-800 border-2 border-yellow-100 dark:border-yellow-900/30 rounded-2xl p-4 flex flex-col relative overflow-hidden transition hover:border-yellow-400 shadow-sm">
-                    <div className="absolute top-0 right-0 bg-yellow-400 text-yellow-900 text-[10px] font-black px-3 py-1 rounded-bl-xl uppercase tracking-widest">
-                      N°{d.numeroSobre}
-                    </div>
-
+                {/* Formulario sobre */}
+                <div className="space-y-2 mb-4 p-3 bg-yellow-50/50 dark:bg-yellow-900/10 border border-yellow-200/30 rounded-xl no-print overflow-hidden">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="N° Sobre"
+                      value={depositForm.numeroSobre}
+                      onChange={e => setDepositForm({ ...depositForm, numeroSobre: e.target.value })}
+                      className="w-24 px-3 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none text-gray-800 dark:text-white text-sm text-center font-bold"
+                    />
+                    <input
+                      type="number"
+                      placeholder="Monto ($)"
+                      value={depositForm.monto}
+                      onChange={e => setDepositForm({ ...depositForm, monto: e.target.value })}
+                      className="flex-1 min-w-0 px-3 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none text-gray-800 dark:text-white text-sm font-bold"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Nota (opcional)"
+                      value={depositForm.nota}
+                      onChange={e => setDepositForm({ ...depositForm, nota: e.target.value })}
+                      className="flex-1 px-3 py-2 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none text-gray-800 dark:text-white text-sm"
+                    />
                     <button
                       type="button"
-                      onClick={() => handleDeleteDeposit(d.id)}
-                      className="absolute top-1 left-1 p-1.5 bg-red-100 text-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-200 no-print"
-                      title="Eliminar sobre"
+                      onClick={handleAddDeposit}
+                      className="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 font-bold text-sm transition-all active:scale-95 flex items-center gap-1"
                     >
-                      <X className="w-3.5 h-3.5" />
+                      <Plus className="w-4 h-4" /> Agregar
                     </button>
-
-                    <div className="text-2xl font-black text-gray-800 dark:text-white mt-4">${d.monto.toFixed(2)}</div>
-                    <div className="text-[10px] font-bold text-gray-400 mt-2 flex justify-between items-center">
-                      <span className="bg-gray-100 dark:bg-slate-700 px-2 py-0.5 rounded uppercase">{d.hora} hs</span>
-                      <span className="truncate ml-2 italic">{d.nota}</span>
-                    </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-6">
-                <p className="text-gray-400 italic">No hay depósitos registrados</p>
-              </div>
-            )}
-          </div>
-
-          <div className="glass bg-gradient-to-br from-blue-600 to-blue-800 dark:from-blue-900 dark:to-indigo-950 border-none rounded-3xl p-6 sm:p-10 transition-all duration-300 text-white shadow-2xl">
-            <h3 className="text-3xl font-black mb-10 tracking-tight flex items-center">
-              Conciliación Final de Turno
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10">
-                <p className="text-blue-100 text-xs font-black uppercase tracking-widest mb-2">GNC (G)</p>
-                <p className="text-4xl font-black">${totals.surtidores.toFixed(2)}</p>
-              </div>
-              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10">
-                <p className="text-blue-100 text-xs font-black uppercase tracking-widest mb-2">Ventas (VTA)</p>
-                <p className="text-4xl font-black">${totals.productos.toFixed(2)}</p>
-              </div>
-              <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/20 ring-4 ring-white/10">
-                <p className="text-blue-100 text-xs font-black uppercase tracking-widest mb-2">Venta Total (G + VTA)</p>
-                <p className="text-4xl font-black text-yellow-300">${totals.total.toFixed(2)}</p>
-              </div>
-            </div>
-
-            <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center border-t border-white/10 pt-10">
-              <div className="flex items-center space-x-6">
-                <div className={`p-6 rounded-3xl flex flex-col justify-center items-center ${totals.estaCuadrado ? 'bg-green-500' : 'bg-red-500'} shadow-lg min-w-[180px]`}>
-                  <p className="text-[10px] uppercase font-black tracking-[0.2em] mb-1">Arqueo</p>
-                  <p className="text-2xl font-black">{totals.estaCuadrado ? 'CUADRADO' : 'PENDIENTE'}</p>
                 </div>
-                <div>
-                  <p className="text-blue-100 text-sm font-bold">Diferencia con Sobres</p>
-                  <p className={`text-4xl font-black ${totals.estaCuadrado ? 'text-green-300' : 'text-red-300'}`}>
-                    ${totals.diferencia.toFixed(2)}
-                  </p>
-                  <p className="text-[10px] text-blue-200 mt-1 italic">
-                    {totals.estaCuadrado ? '¡Perfecto! El dinero en sobres coincide con la venta.' : 'Aún hay una diferencia que conciliar.'}
-                  </p>
+
+                {/* Lista sobres */}
+                {shiftForm.depositos.length > 0 ? (
+                  <div className="grid grid-cols-2 gap-2">
+                    {shiftForm.depositos.map(d => (
+                      <div key={d.id} className="group relative bg-white dark:bg-slate-800 border border-yellow-200 dark:border-yellow-900/40 rounded-xl p-3 hover:border-yellow-400 transition-colors">
+                        <span className="absolute top-0 right-0 bg-yellow-400 text-yellow-900 text-[9px] font-black px-2 py-0.5 rounded-bl-lg rounded-tr-xl uppercase">N°{d.numeroSobre}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteDeposit(d.id)}
+                          className="absolute top-1 left-1 p-1 bg-red-100 text-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-200 no-print"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                        <div className="text-lg font-black text-gray-800 dark:text-white mt-2">${d.monto.toFixed(2)}</div>
+                        <div className="flex justify-between items-center mt-1">
+                          <span className="text-[10px] text-gray-400 bg-gray-100 dark:bg-slate-700 px-1.5 py-0.5 rounded">{d.hora}</span>
+                          <span className="text-[10px] text-gray-400 italic truncate max-w-[80px]">{d.nota}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-center text-gray-400 text-sm italic py-4">Sin depósitos registrados</p>
+                )}
+              </div>
+
+              {/* CONCILIACIÓN */}
+              <div className="bg-gradient-to-br from-blue-600 to-blue-800 dark:from-blue-900 dark:to-indigo-950 rounded-2xl p-5 text-white shadow-xl">
+                <h3 className="text-sm font-black uppercase tracking-widest mb-4 text-blue-200">Conciliación Final</h3>
+
+                <div className="space-y-2 mb-4">
+                  <div className="flex justify-between items-center bg-white/10 rounded-xl px-4 py-2.5">
+                    <span className="text-blue-200 text-xs font-black uppercase tracking-wider">GNC (G)</span>
+                    <span className="text-xl font-black">${totals.surtidores.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-white/10 rounded-xl px-4 py-2.5">
+                    <span className="text-blue-200 text-xs font-black uppercase tracking-wider">Ventas (VTA)</span>
+                    <span className="text-xl font-black">${totals.productos.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center bg-white/20 rounded-xl px-4 py-3 ring-2 ring-white/10">
+                    <span className="text-yellow-300 text-xs font-black uppercase tracking-wider">G + VTA</span>
+                    <span className="text-2xl font-black text-yellow-300">${totals.total.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                <div className={`flex justify-between items-center rounded-xl px-4 py-3 mb-4 ${totals.estaCuadrado ? 'bg-green-500/30 border border-green-400/40' : 'bg-red-500/30 border border-red-400/40'}`}>
+                  <div>
+                    <p className="text-[10px] uppercase font-black tracking-widest opacity-80">Diferencia (Sobres - Total)</p>
+                    <p className={`text-2xl font-black ${totals.estaCuadrado ? 'text-green-300' : 'text-red-300'}`}>
+                      ${totals.diferencia.toFixed(2)}
+                    </p>
+                  </div>
+                  <div className={`px-3 py-2 rounded-lg text-center ${totals.estaCuadrado ? 'bg-green-500' : 'bg-red-500'}`}>
+                    <p className="text-[9px] uppercase font-black tracking-widest">Arqueo</p>
+                    <p className="text-sm font-black">{totals.estaCuadrado ? 'CUADRADO' : 'PENDIENTE'}</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-2 no-print">
+                  <button
+                    type="button"
+                    onClick={handlePrint}
+                    className="flex-1 bg-white text-blue-900 py-2.5 rounded-xl hover:bg-blue-50 font-black flex items-center justify-center gap-2 text-sm transition-all active:scale-95"
+                  >
+                    <Printer className="w-4 h-4" /> Imprimir
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCloseShift}
+                    disabled={!totals.estaCuadrado || !hasPrinted}
+                    className={`flex-1 py-2.5 rounded-xl font-black flex items-center justify-center gap-2 text-sm transition-all active:scale-95 ${totals.estaCuadrado && hasPrinted
+                      ? 'bg-green-500 text-white hover:bg-green-400 shadow-lg'
+                      : 'bg-white/10 text-white/40 cursor-not-allowed border border-dashed border-white/20'
+                      }`}
+                  >
+                    <Download className="w-4 h-4" />
+                    {!totals.estaCuadrado ? 'No cuadrado' : !hasPrinted ? 'Falta imprimir' : 'Cerrar Turno'}
+                  </button>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 no-print">
-                <button
-                  type="button"
-                  onClick={handlePrint}
-                  className="flex-1 bg-white text-blue-900 py-4 rounded-2xl hover:bg-blue-50 font-black flex items-center justify-center space-x-3 transition-all active:scale-95 shadow-xl"
-                >
-                  <Printer className="w-6 h-6" />
-                  <span>Imprimir Resumen</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleCloseShift}
-                  disabled={!totals.estaCuadrado || !hasPrinted}
-                  className={`flex-1 py-4 rounded-2xl font-black flex items-center justify-center space-x-3 transition-all active:scale-95 shadow-xl ${totals.estaCuadrado && hasPrinted
-                    ? 'bg-green-500 text-white hover:bg-green-400'
-                    : 'bg-white/10 text-white/40 cursor-not-allowed border-2 border-dashed border-white/20'
-                    }`}
-                >
-                  <Download className="w-6 h-6" />
-                  <span>
-                    {!totals.estaCuadrado
-                      ? 'No Cuadrado'
-                      : !hasPrinted
-                        ? 'Falta Imprimir'
-                        : 'Cerrar Turno'}
-                  </span>
-                </button>
-              </div>
-            </div>
-          </div>
+            </div>{/* fin columna derecha */}
+          </div>{/* fin grid */}
         </>
       )}
     </div>
   )
 }
+
