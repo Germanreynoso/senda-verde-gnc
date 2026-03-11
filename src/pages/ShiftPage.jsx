@@ -326,7 +326,7 @@ export default function ShiftPage() {
         </div>
       ) : (
         <>
-          <div className="glass rounded-2xl shadow-xl p-8 transition-all duration-300">
+          <div className="glass rounded-2xl shadow-xl p-4 sm:p-8 transition-all duration-300">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-6 border-b border-gray-100 dark:border-slate-700/50">
               <div className="w-full md:w-auto">
                 {isEditingHeader ? (
@@ -422,21 +422,21 @@ export default function ShiftPage() {
               Gestión de Surtidores
             </h2>
             <div className="overflow-x-auto bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
-              <table className="w-full text-sm text-left border-collapse min-w-[800px]">
+              <table className="w-full text-xs text-left border-collapse">
                 <thead>
                   <tr className="bg-blue-600 text-white border-b border-blue-700">
-                    <th colSpan="7" className="px-4 py-3 text-center font-black uppercase tracking-widest text-lg">
+                    <th colSpan="7" className="px-4 py-2 text-center font-black uppercase tracking-widest text-base">
                       AFORADORES (GNC)
                     </th>
                   </tr>
-                  <tr className="bg-gray-100 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 text-[11px] font-black uppercase text-gray-600 dark:text-gray-400">
-                    <th className="px-6 py-4 text-center">SURTIDOR</th>
-                    <th className="px-2 py-4"></th>
-                    <th className="px-6 py-4 text-center">INICIO (m³)</th>
-                    <th className="px-6 py-4 text-center">SALIDA (m³)</th>
-                    <th className="px-6 py-4 text-center">METROS VENDIDOS</th>
-                    <th className="px-6 py-4 text-center">PRECIO</th>
-                    <th className="px-6 py-4 text-right">TOTAL (G)</th>
+                  <tr className="bg-gray-100 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 text-[10px] font-black uppercase text-gray-600 dark:text-gray-400">
+                    <th className="px-2 py-3 text-center">SURTIDOR</th>
+                    <th className="px-1 py-3"></th>
+                    <th className="px-3 py-3 text-center">INICIO (m³)</th>
+                    <th className="px-3 py-3 text-center">SALIDA (m³)</th>
+                    <th className="px-3 py-3 text-center">METROS</th>
+                    <th className="px-3 py-3 text-center">PRECIO</th>
+                    <th className="px-3 py-3 text-right">TOTAL (G)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
@@ -445,33 +445,33 @@ export default function ShiftPage() {
                     const totalSurtidor = metros * data.pricePerCubicMeter
                     return (
                       <tr key={s.id} className="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
-                        <td className="px-6 py-5 text-center font-black text-blue-600 dark:text-blue-400 text-lg">{s.id}</td>
-                        <td className="px-2 py-5 w-4 font-bold text-gray-300">|</td>
-                        <td className="px-6 py-5">
+                        <td className="px-2 py-3 text-center font-black text-blue-600 dark:text-blue-400 text-base">{s.id}</td>
+                        <td className="px-1 py-3 w-2 font-bold text-gray-300">|</td>
+                        <td className="px-2 py-2">
                           <input
                             type="number"
                             step="0.01"
                             value={s.lecturaInicial}
                             onChange={e => handleUpdateSurtidor(i, 'lecturaInicial', e.target.value)}
-                            className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-center font-bold text-gray-800 dark:text-white"
+                            className="w-full px-2 py-1.5 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-center font-bold text-gray-800 dark:text-white"
                           />
                         </td>
-                        <td className="px-6 py-5">
+                        <td className="px-2 py-2">
                           <input
                             type="number"
                             step="0.01"
                             value={s.lecturaFinal}
                             onChange={e => handleUpdateSurtidor(i, 'lecturaFinal', e.target.value)}
-                            className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-center font-bold text-gray-800 dark:text-white"
+                            className="w-full px-2 py-1.5 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-center font-bold text-gray-800 dark:text-white"
                           />
                         </td>
-                        <td className="px-6 py-5 text-center font-black text-gray-700 dark:text-gray-200 bg-gray-50/50 dark:bg-slate-800/50">
+                        <td className="px-3 py-3 text-center font-black text-gray-700 dark:text-gray-200 bg-gray-50/50 dark:bg-slate-800/50">
                           {metros.toFixed(2)}
                         </td>
-                        <td className="px-6 py-5 text-center text-gray-500 dark:text-gray-400 font-medium">
+                        <td className="px-3 py-3 text-center text-gray-500 dark:text-gray-400 font-medium">
                           ${data.pricePerCubicMeter.toFixed(2)}
                         </td>
-                        <td className="px-6 py-5 text-right font-black text-blue-600 dark:text-blue-400 text-lg">
+                        <td className="px-3 py-3 text-right font-black text-blue-600 dark:text-blue-400 text-base">
                           ${totalSurtidor.toFixed(2)}
                         </td>
                       </tr>
@@ -480,19 +480,19 @@ export default function ShiftPage() {
                 </tbody>
                 <tfoot className="bg-gray-50 dark:bg-slate-900 font-black border-t-2 border-gray-200 dark:border-slate-700">
                   <tr className="text-gray-800 dark:text-white">
-                    <td className="px-6 py-5 text-center text-blue-600">TOTALES</td>
-                    <td className="px-2 py-5"></td>
-                    <td className="px-6 py-5 text-center bg-gray-100 dark:bg-slate-800">
+                    <td className="px-2 py-3 text-center text-blue-600 text-[10px]">TOTALES</td>
+                    <td className="px-1 py-3"></td>
+                    <td className="px-2 py-3 text-center bg-gray-100 dark:bg-slate-800">
                       {shiftForm.surtidores.reduce((acc, s) => acc + (parseFloat(s.lecturaInicial) || 0), 0).toFixed(2)}
                     </td>
-                    <td className="px-6 py-5 text-center bg-gray-100 dark:bg-slate-800">
+                    <td className="px-2 py-3 text-center bg-gray-100 dark:bg-slate-800">
                       {shiftForm.surtidores.reduce((acc, s) => acc + (parseFloat(s.lecturaFinal) || 0), 0).toFixed(2)}
                     </td>
-                    <td className="px-6 py-5 text-center text-blue-600">
+                    <td className="px-3 py-3 text-center text-blue-600">
                       {shiftForm.surtidores.reduce((acc, s) => acc + ((parseFloat(s.lecturaFinal) || 0) - (parseFloat(s.lecturaInicial) || 0)), 0).toFixed(2)} m³
                     </td>
-                    <td className="px-6 py-5 text-center"></td>
-                    <td className="px-6 py-5 text-right text-blue-600 dark:text-blue-400 text-xl underline decoration-double">
+                    <td className="px-3 py-3 text-center"></td>
+                    <td className="px-3 py-3 text-right text-blue-600 dark:text-blue-400 text-lg underline decoration-double">
                       ${totals.surtidores.toFixed(2)}
                     </td>
                   </tr>
@@ -502,7 +502,7 @@ export default function ShiftPage() {
           </div>
 
           {/* Sección de Ventas - APARTADO DISTINTO */}
-          <div className="glass rounded-2xl shadow-xl p-8 transition-all duration-300">
+          <div className="glass rounded-2xl shadow-xl p-4 sm:p-8 transition-all duration-300">
             <div className="flex items-center mb-6">
               <span className="w-1.5 h-6 bg-purple-600 rounded-full mr-3"></span>
               <h2 className="text-2xl font-bold text-gray-800 dark:text-white tracking-tight">Ventas de Productos (VTA)</h2>
@@ -601,7 +601,7 @@ export default function ShiftPage() {
           </div>
 
           {/* Sección de Depósitos */}
-          <div className="glass rounded-2xl shadow-xl p-8 border-l-4 border-yellow-500 transition-all duration-300">
+          <div className="glass rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border-l-4 border-yellow-500 transition-all duration-300">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
               <h2 className="text-2xl font-bold text-gray-800 dark:text-white tracking-tight flex items-center">
                 <span className="w-1.5 h-6 bg-yellow-500 rounded-full mr-3"></span>
@@ -678,7 +678,7 @@ export default function ShiftPage() {
             )}
           </div>
 
-          <div className="glass bg-gradient-to-br from-blue-600 to-blue-800 dark:from-blue-900 dark:to-indigo-950 border-none rounded-3xl p-10 transition-all duration-300 text-white shadow-2xl">
+          <div className="glass bg-gradient-to-br from-blue-600 to-blue-800 dark:from-blue-900 dark:to-indigo-950 border-none rounded-3xl p-6 sm:p-10 transition-all duration-300 text-white shadow-2xl">
             <h3 className="text-3xl font-black mb-10 tracking-tight flex items-center">
               Conciliación Final de Turno
             </h3>
