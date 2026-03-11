@@ -421,23 +421,94 @@ export default function ShiftPage() {
               <span className="w-1.5 h-6 bg-blue-600 rounded-full mr-3"></span>
               Gestión de Surtidores
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {shiftForm.surtidores.map((s, i) => (
-                <SurtidorCard
-                  key={s.id}
-                  surtidor={s}
-                  index={i}
-                  onChange={handleUpdateSurtidor}
-                  pricePerCubicMeter={data.pricePerCubicMeter}
-                />
-              ))}
+            <div className="overflow-x-auto bg-white dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
+              <table className="w-full text-sm text-left border-collapse min-w-[800px]">
+                <thead>
+                  <tr className="bg-blue-600 text-white border-b border-blue-700">
+                    <th colSpan="7" className="px-4 py-3 text-center font-black uppercase tracking-widest text-lg">
+                      AFORADORES (GNC)
+                    </th>
+                  </tr>
+                  <tr className="bg-gray-100 dark:bg-slate-900 border-b border-gray-200 dark:border-slate-700 text-[11px] font-black uppercase text-gray-600 dark:text-gray-400">
+                    <th className="px-6 py-4 text-center">SURTIDOR</th>
+                    <th className="px-2 py-4"></th>
+                    <th className="px-6 py-4 text-center">INICIO (m³)</th>
+                    <th className="px-6 py-4 text-center">SALIDA (m³)</th>
+                    <th className="px-6 py-4 text-center">METROS VENDIDOS</th>
+                    <th className="px-6 py-4 text-center">PRECIO</th>
+                    <th className="px-6 py-4 text-right">TOTAL (G)</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
+                  {shiftForm.surtidores.map((s, i) => {
+                    const metros = (parseFloat(s.lecturaFinal) || 0) - (parseFloat(s.lecturaInicial) || 0)
+                    const totalSurtidor = metros * data.pricePerCubicMeter
+                    return (
+                      <tr key={s.id} className="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
+                        <td className="px-6 py-5 text-center font-black text-blue-600 dark:text-blue-400 text-lg">{s.id}</td>
+                        <td className="px-2 py-5 w-4 font-bold text-gray-300">|</td>
+                        <td className="px-6 py-5">
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={s.lecturaInicial}
+                            onChange={e => handleUpdateSurtidor(i, 'lecturaInicial', e.target.value)}
+                            className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-center font-bold text-gray-800 dark:text-white"
+                          />
+                        </td>
+                        <td className="px-6 py-5">
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={s.lecturaFinal}
+                            onChange={e => handleUpdateSurtidor(i, 'lecturaFinal', e.target.value)}
+                            className="w-full px-3 py-2 bg-gray-50 dark:bg-slate-900/50 border border-gray-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-center font-bold text-gray-800 dark:text-white"
+                          />
+                        </td>
+                        <td className="px-6 py-5 text-center font-black text-gray-700 dark:text-gray-200 bg-gray-50/50 dark:bg-slate-800/50">
+                          {metros.toFixed(2)}
+                        </td>
+                        <td className="px-6 py-5 text-center text-gray-500 dark:text-gray-400 font-medium">
+                          ${data.pricePerCubicMeter.toFixed(2)}
+                        </td>
+                        <td className="px-6 py-5 text-right font-black text-blue-600 dark:text-blue-400 text-lg">
+                          ${totalSurtidor.toFixed(2)}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+                <tfoot className="bg-gray-50 dark:bg-slate-900 font-black border-t-2 border-gray-200 dark:border-slate-700">
+                  <tr className="text-gray-800 dark:text-white">
+                    <td className="px-6 py-5 text-center text-blue-600">TOTALES</td>
+                    <td className="px-2 py-5"></td>
+                    <td className="px-6 py-5 text-center bg-gray-100 dark:bg-slate-800">
+                      {shiftForm.surtidores.reduce((acc, s) => acc + (parseFloat(s.lecturaInicial) || 0), 0).toFixed(2)}
+                    </td>
+                    <td className="px-6 py-5 text-center bg-gray-100 dark:bg-slate-800">
+                      {shiftForm.surtidores.reduce((acc, s) => acc + (parseFloat(s.lecturaFinal) || 0), 0).toFixed(2)}
+                    </td>
+                    <td className="px-6 py-5 text-center text-blue-600">
+                      {shiftForm.surtidores.reduce((acc, s) => acc + ((parseFloat(s.lecturaFinal) || 0) - (parseFloat(s.lecturaInicial) || 0)), 0).toFixed(2)} m³
+                    </td>
+                    <td className="px-6 py-5 text-center"></td>
+                    <td className="px-6 py-5 text-right text-blue-600 dark:text-blue-400 text-xl underline decoration-double">
+                      ${totals.surtidores.toFixed(2)}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
             </div>
           </div>
 
+          {/* Sección de Ventas - APARTADO DISTINTO */}
           <div className="glass rounded-2xl shadow-xl p-8 transition-all duration-300">
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 tracking-tight">Ventas de Productos</h2>
+            <div className="flex items-center mb-6">
+              <span className="w-1.5 h-6 bg-purple-600 rounded-full mr-3"></span>
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white tracking-tight">Ventas de Productos (VTA)</h2>
+            </div>
 
-            <div className="mb-6 p-6 bg-blue-500/5 dark:bg-white/5 rounded-2xl border border-blue-200/20 dark:border-white/10 no-print">
+            <div className="mb-6 p-6 bg-purple-500/5 dark:bg-white/5 rounded-2xl border border-purple-200/20 dark:border-white/10 no-print">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="relative flex flex-col">
                   <input
@@ -448,7 +519,7 @@ export default function ShiftPage() {
                       setProductSearch(e.target.value)
                       setProductSaleForm({ ...productSaleForm, productId: '' })
                     }}
-                    className="px-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none w-full text-gray-800 dark:text-white transition-all"
+                    className="px-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none w-full text-gray-800 dark:text-white transition-all shadow-sm"
                   />
 
                   {productSearch && (
@@ -462,7 +533,7 @@ export default function ShiftPage() {
                               setProductSaleForm({ ...productSaleForm, productId: p.id.toString() })
                               setProductSearch(p.nombre)
                             }}
-                            className={`px-4 py-3 cursor-pointer hover:bg-blue-50 dark:hover:bg-blue-900/30 border-b border-gray-100 dark:border-slate-700 last:border-b-0 flex justify-between items-center transition-colors ${productSaleForm.productId === p.id.toString() ? 'bg-blue-100 dark:bg-blue-900/50' : ''}`}
+                            className={`px-4 py-3 cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-900/30 border-b border-gray-100 dark:border-slate-700 last:border-b-0 flex justify-between items-center transition-colors ${productSaleForm.productId === p.id.toString() ? 'bg-purple-100 dark:bg-purple-900/50' : ''}`}
                           >
                             <span className="font-medium text-gray-800 dark:text-white">{p.nombre}</span>
                             <span className="text-[10px] font-bold px-2 py-1 bg-gray-100 dark:bg-slate-700 rounded text-gray-600 dark:text-gray-400 uppercase tracking-tighter">
@@ -470,9 +541,6 @@ export default function ShiftPage() {
                             </span>
                           </div>
                         ))}
-                      {data.products.filter(p => p.nombre.toLowerCase().includes(productSearch.toLowerCase())).length === 0 && (
-                        <div className="px-4 py-3 text-gray-500 dark:text-gray-400 text-sm">No se encontraron productos</div>
-                      )}
                     </div>
                   )}
                 </div>
@@ -481,41 +549,53 @@ export default function ShiftPage() {
                   placeholder="Cantidad"
                   value={productSaleForm.cantidad}
                   onChange={e => setProductSaleForm({ ...productSaleForm, cantidad: e.target.value })}
-                  className="px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none w-full text-gray-800 dark:text-white transition-all"
+                  className="px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-purple-500 outline-none w-full text-gray-800 dark:text-white transition-all shadow-sm"
                 />
                 <button
                   type="button"
                   onClick={handleAddProductSale}
-                  className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 flex items-center justify-center space-x-2"
+                  className="bg-purple-600 text-white px-6 py-3 rounded-xl hover:bg-purple-700 flex items-center justify-center space-x-2 font-bold shadow-lg transition-all active:scale-95"
                 >
-                  <Plus className="w-4 h-4" />
-                  <span>Agregar</span>
+                  <Plus className="w-5 h-5" />
+                  <span>Agregar Venta</span>
                 </button>
               </div>
             </div>
 
-            {shiftForm.ventas.length > 0 && (
-              <div className="overflow-x-auto">
+            {shiftForm.ventas.length > 0 ? (
+              <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-slate-700 shadow-sm">
                 <table className="w-full">
-                  <thead className="bg-gray-100">
-                    <tr>
-                      <th className="px-4 py-2 text-left">Producto</th>
-                      <th className="px-4 py-2 text-left">Cantidad</th>
-                      <th className="px-4 py-2 text-left">Precio Unit.</th>
-                      <th className="px-4 py-2 text-left">Total</th>
+                  <thead className="bg-gray-50 dark:bg-slate-900/80">
+                    <tr className="text-[10px] font-black uppercase text-gray-500 tracking-widest border-b border-gray-100 dark:border-slate-700">
+                      <th className="px-6 py-4 text-left">Producto</th>
+                      <th className="px-6 py-4 text-center">Cantidad</th>
+                      <th className="px-6 py-4 text-center">Precio Unit.</th>
+                      <th className="px-6 py-4 text-right">Subtotal</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-gray-50 dark:divide-slate-800">
                     {shiftForm.ventas.map(v => (
-                      <tr key={v.id} className="border-b">
-                        <td className="px-4 py-3">{v.nombre}</td>
-                        <td className="px-4 py-3">{v.cantidad}</td>
-                        <td className="px-4 py-3">${v.precio.toFixed(2)}</td>
-                        <td className="px-4 py-3 font-semibold">${v.total.toFixed(2)}</td>
+                      <tr key={v.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                        <td className="px-6 py-4 font-medium text-gray-800 dark:text-white">{v.nombre}</td>
+                        <td className="px-6 py-4 text-center font-bold text-gray-600 dark:text-gray-400">{v.cantidad}</td>
+                        <td className="px-6 py-4 text-center text-gray-500">${v.precio.toFixed(2)}</td>
+                        <td className="px-6 py-4 text-right font-black text-gray-800 dark:text-white">${v.total.toFixed(2)}</td>
                       </tr>
                     ))}
                   </tbody>
+                  <tfoot className="bg-purple-50 dark:bg-purple-900/20 font-black">
+                    <tr>
+                      <td colSpan="3" className="px-6 py-5 text-right text-purple-600 uppercase tracking-widest text-sm">Total Ventas (VTA):</td>
+                      <td className="px-6 py-5 text-right text-purple-700 dark:text-purple-400 text-xl border-t-2 border-purple-200 dark:border-purple-800">
+                        ${totals.productos.toFixed(2)}
+                      </td>
+                    </tr>
+                  </tfoot>
                 </table>
+              </div>
+            ) : (
+              <div className="text-center py-10 bg-gray-50 dark:bg-slate-900/30 rounded-2xl border-2 border-dashed border-gray-200 dark:border-slate-700">
+                <p className="text-gray-400 font-medium">No hay ventas registradas en este turno</p>
               </div>
             )}
           </div>
@@ -523,127 +603,145 @@ export default function ShiftPage() {
           {/* Sección de Depósitos */}
           <div className="glass rounded-2xl shadow-xl p-8 border-l-4 border-yellow-500 transition-all duration-300">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Control de Depósitos</h2>
-              <div className="flex space-x-2">
-                <div className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-bold">
-                  Suma Sobres: ${totals.depositos.toFixed(2)}
-                </div>
-                <div className={`${totals.estaCuadrado ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} px-3 py-1 rounded-full text-sm font-bold`}>
-                  Balance: ${totals.diferencia.toFixed(2)}
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white tracking-tight flex items-center">
+                <span className="w-1.5 h-6 bg-yellow-500 rounded-full mr-3"></span>
+                Efectivo Depositado
+              </h2>
+              <div className="flex space-x-2 mt-4 md:mt-0">
+                <div className="bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400 px-4 py-2 rounded-xl text-sm font-black border border-yellow-200 dark:border-yellow-800/50">
+                  RECAUDADO EN SOBRES: ${totals.depositos.toFixed(2)}
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 no-print">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8 no-print p-6 bg-yellow-500/5 dark:bg-yellow-500/5 rounded-2xl border border-yellow-200/20">
               <input
                 type="text"
                 placeholder="N° de Sobre"
                 value={depositForm.numeroSobre}
                 onChange={e => setDepositForm({ ...depositForm, numeroSobre: e.target.value })}
-                className="px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none w-full text-gray-800 dark:text-white transition-all"
+                className="px-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none w-full text-gray-800 dark:text-white transition-all shadow-sm"
               />
               <input
                 type="number"
                 placeholder="Monto ($)"
                 value={depositForm.monto}
                 onChange={e => setDepositForm({ ...depositForm, monto: e.target.value })}
-                className="px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none w-full text-gray-800 dark:text-white transition-all"
+                className="px-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none w-full text-gray-800 dark:text-white transition-all shadow-sm"
               />
               <input
                 type="text"
                 placeholder="Nota (opcional)"
                 value={depositForm.nota}
                 onChange={e => setDepositForm({ ...depositForm, nota: e.target.value })}
-                className="px-4 py-3 bg-white/50 dark:bg-slate-800/50 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none w-full text-gray-800 dark:text-white transition-all"
+                className="px-4 py-3 bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-yellow-500 outline-none w-full text-gray-800 dark:text-white transition-all shadow-sm"
               />
               <button
                 type="button"
                 onClick={handleAddDeposit}
-                className="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 font-semibold transition flex items-center justify-center"
+                className="bg-yellow-600 text-white px-6 py-3 rounded-xl hover:bg-yellow-700 font-bold shadow-lg transition-all active:scale-95 flex items-center justify-center space-x-2"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Registrar Sobre
+                <Plus className="w-5 h-5" />
+                <span>Registrar Sobre</span>
               </button>
             </div>
 
             {shiftForm.depositos.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {shiftForm.depositos.map(d => (
-                  <div key={d.id} className="group bg-gray-50 border-2 border-yellow-200 rounded-lg p-3 flex flex-col relative overflow-hidden transition hover:border-yellow-400">
-                    <div className="absolute top-0 right-0 bg-yellow-400 text-yellow-900 text-[10px] font-bold px-2 py-0.5 rounded-bl-lg uppercase">
-                      Sobre N°{d.numeroSobre}
+                  <div key={d.id} className="group bg-white dark:bg-slate-800 border-2 border-yellow-100 dark:border-yellow-900/30 rounded-2xl p-4 flex flex-col relative overflow-hidden transition hover:border-yellow-400 shadow-sm">
+                    <div className="absolute top-0 right-0 bg-yellow-400 text-yellow-900 text-[10px] font-black px-3 py-1 rounded-bl-xl uppercase tracking-widest">
+                      N°{d.numeroSobre}
                     </div>
 
-                    {/* Botón de eliminar sobre - Solo visible al pasar el mouse (hover) o en táctil */}
                     <button
                       type="button"
                       onClick={() => handleDeleteDeposit(d.id)}
-                      className="absolute top-1 left-1 p-1 bg-red-100 text-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-200 no-print"
+                      className="absolute top-1 left-1 p-1.5 bg-red-100 text-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-200 no-print"
                       title="Eliminar sobre"
                     >
-                      <X className="w-3 h-3" />
+                      <X className="w-3.5 h-3.5" />
                     </button>
 
-                    <div className="text-xl font-bold text-gray-800 mt-2">${d.monto.toFixed(2)}</div>
-                    <div className="text-[10px] text-gray-500 mt-1 flex justify-between">
-                      <span>{d.hora} hs</span>
-                      <span className="truncate max-w-[100px]">{d.nota}</span>
+                    <div className="text-2xl font-black text-gray-800 dark:text-white mt-4">${d.monto.toFixed(2)}</div>
+                    <div className="text-[10px] font-bold text-gray-400 mt-2 flex justify-between items-center">
+                      <span className="bg-gray-100 dark:bg-slate-700 px-2 py-0.5 rounded uppercase">{d.hora} hs</span>
+                      <span className="truncate ml-2 italic">{d.nota}</span>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-500 text-center py-4 italic">No se han registrado sobres en este turno</p>
+              <div className="text-center py-6">
+                <p className="text-gray-400 italic">No hay depósitos registrados</p>
+              </div>
             )}
           </div>
 
-          <div className="glass bg-blue-500/5 dark:bg-white/5 border border-blue-200/50 dark:border-white/10 rounded-2xl p-8 transition-all duration-300">
-            <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-6 tracking-tight">Conciliación Final</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div>
-                <p className="text-sm text-gray-600">Total Ventas (A)</p>
-                <p className="text-2xl font-bold text-blue-600">${totals.total.toFixed(2)}</p>
+          <div className="glass bg-gradient-to-br from-blue-600 to-blue-800 dark:from-blue-900 dark:to-indigo-950 border-none rounded-3xl p-10 transition-all duration-300 text-white shadow-2xl">
+            <h3 className="text-3xl font-black mb-10 tracking-tight flex items-center">
+              Conciliación Final de Turno
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10">
+                <p className="text-blue-100 text-xs font-black uppercase tracking-widest mb-2">GNC (G)</p>
+                <p className="text-4xl font-black">${totals.surtidores.toFixed(2)}</p>
               </div>
-              <div>
-                <p className="text-sm text-gray-600">Total en Sobres (B)</p>
-                <p className="text-2xl font-bold text-yellow-600">${totals.depositos.toFixed(2)}</p>
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10">
+                <p className="text-blue-100 text-xs font-black uppercase tracking-widest mb-2">Ventas (VTA)</p>
+                <p className="text-4xl font-black">${totals.productos.toFixed(2)}</p>
               </div>
-              <div className={`p-2 rounded ${totals.estaCuadrado ? 'bg-green-100' : 'bg-red-100'}`}>
-                <p className={`text-sm font-semibold ${totals.estaCuadrado ? 'text-green-800' : 'text-red-800'}`}>Diferencia (B-A)</p>
-                <p className={`text-2xl font-bold ${totals.estaCuadrado ? 'text-green-600' : 'text-red-600'}`}>${totals.diferencia.toFixed(2)}</p>
-              </div>
-              <div className={`p-2 rounded flex flex-col justify-center items-center text-white ${totals.estaCuadrado ? 'bg-green-600' : 'bg-red-600'}`}>
-                <p className="text-xs uppercase font-bold tracking-wider">Estado de Arqueo</p>
-                <p className="text-xl font-black">{totals.estaCuadrado ? 'CUADRADO' : 'PENDIENTE'}</p>
+              <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 border border-white/20 ring-4 ring-white/10">
+                <p className="text-blue-100 text-xs font-black uppercase tracking-widest mb-2">Venta Total (G + VTA)</p>
+                <p className="text-4xl font-black text-yellow-300">${totals.total.toFixed(2)}</p>
               </div>
             </div>
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4 no-print">
-              <button
-                type="button"
-                onClick={handleCloseShift}
-                disabled={!totals.estaCuadrado || !hasPrinted}
-                className={`w-full py-3 rounded-lg font-semibold flex items-center justify-center space-x-2 transition ${totals.estaCuadrado && hasPrinted
-                  ? 'bg-red-600 text-white hover:bg-red-700 shadow-lg'
-                  : 'bg-gray-300 text-gray-500 cursor-not-allowed border-2 border-dashed border-gray-400 opacity-60'
-                  }`}
-              >
-                <Download className="w-5 h-5" />
-                <span>
-                  {!totals.estaCuadrado
-                    ? 'Bloqueado: Arqueo no Cuadrado'
-                    : !hasPrinted
-                      ? 'Bloqueado: Imprima el Resumen'
-                      : 'Cerrar Turno y Excel'}
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={handlePrint}
-                className="w-full bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700 font-semibold flex items-center justify-center space-x-2"
-              >
-                <Printer className="w-5 h-5" />
-                <span>Imprimir Resumen</span>
-              </button>
+
+            <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-center border-t border-white/10 pt-10">
+              <div className="flex items-center space-x-6">
+                <div className={`p-6 rounded-3xl flex flex-col justify-center items-center ${totals.estaCuadrado ? 'bg-green-500' : 'bg-red-500'} shadow-lg min-w-[180px]`}>
+                  <p className="text-[10px] uppercase font-black tracking-[0.2em] mb-1">Arqueo</p>
+                  <p className="text-2xl font-black">{totals.estaCuadrado ? 'CUADRADO' : 'PENDIENTE'}</p>
+                </div>
+                <div>
+                  <p className="text-blue-100 text-sm font-bold">Diferencia con Sobres</p>
+                  <p className={`text-4xl font-black ${totals.estaCuadrado ? 'text-green-300' : 'text-red-300'}`}>
+                    ${totals.diferencia.toFixed(2)}
+                  </p>
+                  <p className="text-[10px] text-blue-200 mt-1 italic">
+                    {totals.estaCuadrado ? '¡Perfecto! El dinero en sobres coincide con la venta.' : 'Aún hay una diferencia que conciliar.'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 no-print">
+                <button
+                  type="button"
+                  onClick={handlePrint}
+                  className="flex-1 bg-white text-blue-900 py-4 rounded-2xl hover:bg-blue-50 font-black flex items-center justify-center space-x-3 transition-all active:scale-95 shadow-xl"
+                >
+                  <Printer className="w-6 h-6" />
+                  <span>Imprimir Resumen</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCloseShift}
+                  disabled={!totals.estaCuadrado || !hasPrinted}
+                  className={`flex-1 py-4 rounded-2xl font-black flex items-center justify-center space-x-3 transition-all active:scale-95 shadow-xl ${totals.estaCuadrado && hasPrinted
+                    ? 'bg-green-500 text-white hover:bg-green-400'
+                    : 'bg-white/10 text-white/40 cursor-not-allowed border-2 border-dashed border-white/20'
+                    }`}
+                >
+                  <Download className="w-6 h-6" />
+                  <span>
+                    {!totals.estaCuadrado
+                      ? 'No Cuadrado'
+                      : !hasPrinted
+                        ? 'Falta Imprimir'
+                        : 'Cerrar Turno'}
+                  </span>
+                </button>
+              </div>
             </div>
           </div>
         </>
