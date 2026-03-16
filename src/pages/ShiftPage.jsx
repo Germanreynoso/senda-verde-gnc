@@ -11,7 +11,7 @@ export default function ShiftPage() {
   const { data, currentUser, addShift, decreaseProductStock, updateShift } = useData()
   const [activeShift, setActiveShift] = useState(null)
   const [shiftForm, setShiftForm] = useState({
-    tipo: 'maÃ±ana',
+    tipo: 'mañana',
     fecha: getTodayDate(),
     surtidores: [
       { id: 1, lecturaInicial: '', lecturaFinal: '' },
@@ -47,7 +47,7 @@ export default function ShiftPage() {
       setActiveShift(openShift)
 
       if (activeShiftIdRef.current !== openShift.id) {
-        // Turno nuevo o distinto â†’ resetear el formulario
+        // Turno nuevo o distinto → resetear el formulario
         activeShiftIdRef.current = openShift.id
         setShiftForm({
           tipo: openShift.tipo,
@@ -65,7 +65,7 @@ export default function ShiftPage() {
       }
     } else {
       if (activeShiftIdRef.current !== null) {
-        // El turno fue cerrado â†’ limpiar todo
+        // El turno fue cerrado → limpiar todo
         activeShiftIdRef.current = null
         setActiveShift(null)
         setShiftForm(prev => ({
@@ -98,17 +98,26 @@ export default function ShiftPage() {
     ]
 
     const newShiftData = {
-      ...shiftForm,
+      tipo: shiftForm.tipo,
+      fecha: getTodayDate(),
       surtidores: initialSurtidores,
-      encargado: `${currentUser.nombre} ${currentUser.apellido}`,
+      ventas: [], // Asegurar que empiece de cero
+      depositos: [], // Asegurar que empiece de cero
+      encargado: `${currentUser.nombre} ${currentUser.apellido}`.trim(),
       estado: 'abierto',
-      fechaApertura: new Date().toISOString(),
-      fecha: getTodayDate() // Asegurar que siempre sea la fecha de hoy al abrir uno nuevo
+      fechaApertura: new Date().toISOString()
     }
 
     const savedShift = await addShift(newShiftData)
     if (savedShift) {
       setActiveShift(savedShift)
+      // Actualizar el form local tambíen
+      setShiftForm(prev => ({
+        ...prev,
+        ventas: [],
+        depositos: [],
+        fecha: newShiftData.fecha
+      }))
     }
   }
 
@@ -178,7 +187,35 @@ export default function ShiftPage() {
       setProductSearch('')
     } catch (error) {
       console.error('Error en handleAddProductSale:', error)
-      toast.error('Error al procesar la venta')
+    }
+  }
+
+  const handleDeleteProductSale = async (saleId) => {
+    try {
+      if (!confirm('¿Está seguro de eliminar esta venta?')) return
+
+      const saleToDelete = shiftForm.ventas.find(v => v.id === saleId)
+      if (!saleToDelete) return
+
+      const updatedVentas = shiftForm.ventas.filter(v => v.id !== saleId)
+      setShiftForm(prev => ({ ...prev, ventas: updatedVentas }))
+
+      // Devolver stock a la DB (pasando cantidad negativa para sumar)
+      await decreaseProductStock(saleToDelete.productId, -saleToDelete.cantidad)
+
+      // Auto-guardar el turno
+      if (activeShift) {
+        await updateShift({
+          ...activeShift,
+          surtidores: shiftForm.surtidores,
+          ventas: updatedVentas,
+          depositos: shiftForm.depositos
+        })
+      }
+      toast.success('Venta eliminada y stock restaurado')
+    } catch (error) {
+      console.error('Error en handleDeleteProductSale:', error)
+      toast.error('Error al eliminar la venta')
     }
   }
 
@@ -194,7 +231,7 @@ export default function ShiftPage() {
       nota: depositForm.nota
     }
     setShiftForm(prev => ({ ...prev, depositos: [...prev.depositos, nuevoDeposito] }))
-    // Sugerimos el siguiente nÃºmero de sobre si es numÃ©rico
+    // Sugerimos el siguiente número de sobre si es numérico
     const nextSobre = !isNaN(depositForm.numeroSobre) ? (parseInt(depositForm.numeroSobre) + 1).toString() : ''
     setDepositForm({ monto: '', nota: '', numeroSobre: nextSobre })
   }
@@ -230,7 +267,7 @@ export default function ShiftPage() {
       return
     }
 
-    if (!confirm('Â¿EstÃ¡ seguro de cerrar el turno?')) return
+    if (!confirm('¿Está seguro de cerrar el turno?')) return
     const updatedShift = {
       ...activeShift,
       surtidores: shiftForm.surtidores,
@@ -253,14 +290,14 @@ export default function ShiftPage() {
 
       if (invokeError) throw invokeError;
 
-      toast.success('Â¡Reporte Enviado!', {
-        description: 'El resumen del turno ha sido enviado con Ã©xito a chombyferrari37.37.37@gmail.com',
+      toast.success('¡Reporte Enviado!', {
+        description: 'El resumen del turno ha sido enviado con éxito a chombyferrari37.37.37@gmail.com',
         duration: 5000,
       });
     } catch (error) {
       console.error('Error enviando mail:', error)
-      toast.error('Error de EnvÃ­o', {
-        description: 'El turno se cerrÃ³ pero no se pudo enviar el email de reporte.',
+      toast.error('Error de Envío', {
+        description: 'El turno se cerró pero no se pudo enviar el email de reporte.',
       });
     }
 
@@ -268,7 +305,7 @@ export default function ShiftPage() {
     setActiveShift(null)
     setHasPrinted(false)
     setShiftForm({
-      tipo: 'maÃ±ana',
+      tipo: 'mañana',
       fecha: getTodayDate(),
       surtidores: [
         { id: 1, lecturaInicial: '', lecturaFinal: '' },
@@ -293,7 +330,7 @@ export default function ShiftPage() {
     <div className="space-y-6 w-full">
       {!activeShift ? (
 
-        /* â”€â”€ PANTALLA ABRIR TURNO â”€â”€ */
+        /* ── PANTALLA ABRIR TURNO ── */
         <div className="glass rounded-3xl shadow-2xl p-10 max-w-xl mx-auto">
           <h1 className="text-4xl font-black text-gray-800 dark:text-white mb-2 text-center">Abrir Turno</h1>
           <p className="text-center text-gray-500 dark:text-gray-400 text-lg mb-10">Complete los datos para iniciar el turno</p>
@@ -306,8 +343,8 @@ export default function ShiftPage() {
                 onChange={e => setShiftForm({ ...shiftForm, tipo: e.target.value })}
                 className="w-full px-5 py-4 text-xl bg-white dark:bg-slate-900 border-2 border-gray-300 dark:border-slate-600 rounded-2xl focus:ring-4 focus:ring-blue-400 outline-none text-gray-800 dark:text-white font-bold"
               >
-                <option value="maÃ±ana">â˜€ï¸  MaÃ±ana</option>
-                <option value="tarde">ðŸŒ…  Tarde</option>
+                <option value="mañana">☀️ Mañana</option>
+                <option value="tarde">🌥️ Tarde</option>
               </select>
             </div>
 
@@ -326,14 +363,14 @@ export default function ShiftPage() {
               onClick={handleOpenShift}
               className="w-full bg-blue-600 text-white py-5 rounded-2xl hover:bg-blue-700 font-black text-2xl transition-all active:scale-95 shadow-xl"
             >
-              â–¶&nbsp;&nbsp;Abrir Turno
+              ▶&nbsp;&nbsp;Abrir Turno
             </button>
           </div>
         </div>
 
       ) : (
         <>
-          {/* â”€â”€ HEADER â”€â”€ */}
+          {/* ── HEADER ── */}
           <div className="glass rounded-2xl shadow-xl px-8 py-5 flex items-center justify-between">
             {isEditingHeader ? (
               <div className="flex items-center gap-3 flex-wrap flex-1">
@@ -342,7 +379,7 @@ export default function ShiftPage() {
                   onChange={e => setShiftForm({ ...shiftForm, tipo: e.target.value })}
                   className="px-3 py-1.5 bg-white dark:bg-slate-900 border-2 border-gray-300 dark:border-slate-600 rounded-lg text-sm font-bold text-gray-800 dark:text-white outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="maÃ±ana">MAÃ‘ANA</option>
+                  <option value="mañana">MAÑANA</option>
                   <option value="tarde">TARDE</option>
                 </select>
                 <input
@@ -574,15 +611,25 @@ export default function ShiftPage() {
                         <th className="px-4 py-2 text-center text-xs font-black text-gray-500 uppercase tracking-wide">Cant.</th>
                         <th className="px-4 py-2 text-center text-xs font-black text-gray-500 uppercase tracking-wide">Precio</th>
                         <th className="px-4 py-2 text-right text-xs font-black text-gray-500 uppercase tracking-wide">Subtotal</th>
+                        <th className="px-4 py-2 text-center text-xs font-black text-gray-500 uppercase tracking-wide no-print w-10"></th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-slate-800">
                       {shiftForm.ventas.map(v => (
-                        <tr key={v.id} className="hover:bg-purple-50/30 dark:hover:bg-purple-900/10">
+                        <tr key={v.id} className="hover:bg-purple-50/30 dark:hover:bg-purple-900/10 group/row">
                           <td className="px-4 py-2 font-bold text-gray-800 dark:text-white text-base">{v.nombre}</td>
                           <td className="px-4 py-2 text-center font-black text-gray-600 dark:text-gray-300 text-base">{v.cantidad}</td>
                           <td className="px-4 py-2 text-center text-gray-500 text-sm">${v.precio.toFixed(2)}</td>
                           <td className="px-4 py-2 text-right font-black text-purple-700 dark:text-purple-300 text-base">${v.total.toFixed(2)}</td>
+                          <td className="px-4 py-2 text-center no-print">
+                            <button
+                              onClick={() => handleDeleteProductSale(v.id)}
+                              className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors opacity-0 group-hover/row:opacity-100"
+                              title="Eliminar venta"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -590,6 +637,7 @@ export default function ShiftPage() {
                       <tr className="bg-purple-600 text-white">
                         <td colSpan="3" className="px-4 py-2 text-right font-black text-sm uppercase tracking-wide">Total Ventas:</td>
                         <td className="px-4 py-2 text-right font-black text-lg">${totals.productos.toFixed(2)}</td>
+                        <td className="no-print"></td>
                       </tr>
                     </tfoot>
                   </table>

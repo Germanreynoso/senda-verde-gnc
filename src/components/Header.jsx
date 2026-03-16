@@ -5,10 +5,13 @@ export default function Header({ currentUser, onLogout, mobileMenuOpen, setMobil
   return (
     <header className="bg-blue-600 dark:bg-slate-900 text-white shadow-lg sticky top-0 z-50 transition-colors duration-300">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Fuel className="w-8 h-8 text-blue-200 dark:text-blue-400" />
-          <div className="hidden sm:block">
-            <h1 className="text-xl font-bold tracking-tight">GNC Gestión</h1>
+        <div className="flex items-center">
+          <div className="bg-white rounded-xl px-3 py-1 shadow-md">
+            <img
+              src="/logo.png"
+              alt="Senda Verde GNC"
+              className="h-10 w-auto"
+            />
           </div>
         </div>
 
